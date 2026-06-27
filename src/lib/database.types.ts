@@ -133,14 +133,17 @@ export type Database = {
         Row: {
           user_id: string
           budgeting_mode: 'all_time' | 'rolling_12mo'
+          annual_target: number | null
         }
         Insert: {
           user_id: string
           budgeting_mode?: 'all_time' | 'rolling_12mo'
+          annual_target?: number | null
         }
         Update: {
           user_id?: string
           budgeting_mode?: 'all_time' | 'rolling_12mo'
+          annual_target?: number | null
         }
         Relationships: [
           {

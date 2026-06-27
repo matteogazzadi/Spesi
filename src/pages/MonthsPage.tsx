@@ -231,91 +231,74 @@ export function MonthsPage() {
         ) : visible.length === 0 ? (
           <p className="col-muted" style={{ fontSize: '.875rem' }}>No months for {selectedYear}.</p>
         ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th style={{ textAlign: 'right' }}>Total spent</th>
-                <th style={{ textAlign: 'right' }}>Transactions</th>
-                <th>Last updated</th>
-                <th style={{ textAlign: 'right' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map(m => {
-                const isEditing = editingId === m.id
-                return (
-                  <tr key={m.id}>
-                    <td>
+          <div className="months-list">
+            {visible.map(m => {
+              const isEditing = editingId === m.id
+              const raw = new Date(m.month + '-01').toLocaleString('it-IT', { month: 'long', year: 'numeric' })
+              const monthLabel = raw.charAt(0).toUpperCase() + raw.slice(1)
+              return (
+                <div key={m.id} className="month-row">
+                  <div className="month-row-info">
+                    {m.txCount > 0
+                      ? <Link to={`/months/${m.month}`} className="month-row-name month-link">{monthLabel}</Link>
+                      : <span className="month-row-name">{monthLabel}</span>
+                    }
+                    <div className="month-row-meta">
                       {m.txCount > 0
-                        ? <Link to={`/months/${m.month}`} className="month-link">{m.month}</Link>
-                        : <span>{m.month}</span>
+                        ? `${m.txCount} transaction${m.txCount === 1 ? '' : 's'}${m.excludedCount > 0 ? ` (${m.excludedCount} excl.)` : ''}`
+                        : 'Manual entry'
                       }
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
+                      {' · '}Updated {fmtDate(m.last_imported_at)}
+                    </div>
+                  </div>
+                  <div className="month-row-right">
+                    {isEditing ? (
+                      <input
+                        className="inline-edit"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={editAmount}
+                        onChange={e => setEditAmount(e.target.value)}
+                        autoFocus
+                        style={{ width: 110 }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') saveEdit(m)
+                          if (e.key === 'Escape') setEditingId(null)
+                        }}
+                      />
+                    ) : (
+                      <span className="num month-row-amount">{fmt(m.total_spent)}</span>
+                    )}
+                    <div className="row-actions">
                       {isEditing ? (
-                        <input
-                          className="inline-edit"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={editAmount}
-                          onChange={e => setEditAmount(e.target.value)}
-                          autoFocus
-                          style={{ width: 100 }}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') saveEdit(m)
-                            if (e.key === 'Escape') setEditingId(null)
-                          }}
-                        />
-                      ) : (
-                        <span className="num">{fmt(m.total_spent)}</span>
-                      )}
-                    </td>
-                    <td style={{ textAlign: 'right', color: 'var(--text-muted)', fontSize: '.875rem' }}>
-                      {m.txCount > 0 ? (
                         <>
-                          {m.txCount}
-                          {m.excludedCount > 0 && (
-                            <span style={{ color: 'var(--over)', marginLeft: 4 }}>({m.excludedCount} excl.)</span>
-                          )}
+                          <button className="btn-action btn-action-save" onClick={() => saveEdit(m)} disabled={savingEdit}>
+                            {savingEdit ? '…' : 'Save'}
+                          </button>
+                          <button className="btn-action" onClick={() => setEditingId(null)}>Cancel</button>
                         </>
                       ) : (
-                        <span style={{ fontStyle: 'italic' }}>manual</span>
-                      )}
-                    </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '.8rem' }}>{fmtDate(m.last_imported_at)}</td>
-                    <td>
-                      <div className="row-actions">
-                        {isEditing ? (
-                          <>
-                            <button className="btn-action btn-action-save" onClick={() => saveEdit(m)} disabled={savingEdit}>
-                              {savingEdit ? '…' : 'Save'}
+                        <>
+                          {m.txCount > 0 && (
+                            <button
+                              className="btn-action"
+                              onClick={() => handleReuploadClick(m.month)}
+                              disabled={uploading === m.month}
+                            >
+                              {uploading === m.month ? '…' : 'Re-upload'}
                             </button>
-                            <button className="btn-action" onClick={() => setEditingId(null)}>Cancel</button>
-                          </>
-                        ) : (
-                          <>
-                            {m.txCount > 0 && (
-                              <button
-                                className="btn-action"
-                                onClick={() => handleReuploadClick(m.month)}
-                                disabled={uploading === m.month}
-                              >
-                                {uploading === m.month ? '…' : 'Re-upload'}
-                              </button>
-                            )}
-                            <button className="btn-action" onClick={() => startEdit(m)}>Edit</button>
-                            <button className="btn-action btn-action-del" onClick={() => handleDelete(m)}>Delete</button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                          )}
+                          <button className="btn-action" onClick={() => startEdit(m)}>Edit</button>
+                          <button className="btn-action btn-action-del" onClick={() => handleDelete(m)}>Delete</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
     </AppLayout>

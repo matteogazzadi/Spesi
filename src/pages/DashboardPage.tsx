@@ -2,6 +2,7 @@ import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../contexts/useAuth'
 import { useMonthlyData } from '../hooks/useMonthlyData'
 import { CurrentMonthCard } from '../components/CurrentMonthCard'
+import { AnnualProgressCard } from '../components/AnnualProgressCard'
 import { HistoryStrip } from '../components/HistoryStrip'
 
 export function DashboardPage() {
@@ -21,6 +22,12 @@ export function DashboardPage() {
       ) : (
         <>
           <CurrentMonthCard data={data} />
+          <AnnualProgressCard
+            year={data.currentMonth.slice(0, 4)}
+            yearToDate={data.yearToDate}
+            projectedAnnual={data.projectedAnnual}
+            annualTarget={data.annualTarget}
+          />
           <HistoryStrip
             history={data.history}
             budgetingMode={data.budgetingMode}
