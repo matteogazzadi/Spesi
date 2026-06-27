@@ -4,10 +4,10 @@ function fmt(n: number) {
   return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
 }
 
-function monthLabel(ym: string): string {
+function monthName(ym: string): string {
   const [y, m] = ym.split('-')
-  return new Date(Number(y), Number(m) - 1, 1)
-    .toLocaleString('default', { month: 'long', year: 'numeric' })
+  const s = new Date(Number(y), Number(m) - 1, 1).toLocaleString('it-IT', { month: 'long' })
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 interface Props {
@@ -18,27 +18,21 @@ export function CurrentMonthCard({ data }: Props) {
   const { forecast, nextMonthForecast, currentMonth, nextMonth } = data
 
   return (
-    <div className="budget-overview">
-      <div className="card budget-card">
-        <div className="card-title">Current month</div>
-        <div className="budget-month-name">{monthLabel(currentMonth)}</div>
-        <div className="budget-label">Your budget is</div>
+    <div className="forecast-hero">
+      <div className="forecast-current">
+        <span className="forecast-month">{monthName(currentMonth)}</span>
+        <span className="forecast-sep">:</span>
         {forecast > 0 ? (
-          <div className="num num-xl col-muted">{fmt(forecast)}</div>
+          <span className="forecast-amount num">{fmt(forecast)}</span>
         ) : (
-          <div className="budget-empty">Add past months to get a forecast</div>
+          <span className="forecast-no-data">add past months to see your forecast</span>
         )}
       </div>
-      <div className="card budget-card">
-        <div className="card-title">Next month</div>
-        <div className="budget-month-name">{monthLabel(nextMonth)}</div>
-        <div className="budget-label">Your budget is</div>
-        {nextMonthForecast > 0 ? (
-          <div className="num num-xl col-muted">{fmt(nextMonthForecast)}</div>
-        ) : (
-          <div className="budget-empty">Add past months to get a forecast</div>
-        )}
-      </div>
+      {nextMonthForecast > 0 && (
+        <div className="forecast-next">
+          {monthName(nextMonth)}: {fmt(nextMonthForecast)}
+        </div>
+      )}
     </div>
   )
 }
