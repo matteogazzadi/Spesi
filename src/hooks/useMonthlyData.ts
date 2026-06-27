@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { computeForecast, computeAllocation } from '../lib/forecast'
+import { computeForecast } from '../lib/forecast'
 import type { BudgetingMode } from '../lib/forecast'
 import type { Database } from '../lib/database.types'
 
@@ -9,16 +9,13 @@ type UserSettingsRow = Database['public']['Tables']['user_settings']['Row']
 
 function currentYearMonth(): string {
   const d = new Date()
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  return `${y}-${m}`
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
-function percentMonthElapsed(): number {
-  const now = new Date()
-  const day = now.getDate()
-  const total = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-  return day / total
+function nextYearMonth(current: string): string {
+  const [y, m] = current.split('-').map(Number)
+  const d = new Date(y, m, 1) // m is 1-indexed; as 0-indexed it already points to next month
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
 export interface MonthlyDataResult {
@@ -27,11 +24,9 @@ export interface MonthlyDataResult {
   history: MonthlyTotalRow[]
   budgetingMode: BudgetingMode
   currentMonth: string
+  nextMonth: string
   forecast: number
-  actualSoFar: number
-  allocation: number
-  expectedByNow: number
-  pctElapsed: number
+  nextMonthForecast: number
   refetch: () => void
 }
 
@@ -73,20 +68,14 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   useEffect(() => { fetchData() }, [fetchData])
 
   const currentMonth = currentYearMonth()
-  const pctElapsed = percentMonthElapsed()
+  const nextMonth = nextYearMonth(currentMonth)
 
-  // history entries before current month feed the forecast
   const historicalEntries = history
     .filter((h) => h.month < currentMonth)
     .map((h) => ({ month: h.month, totalSpent: h.total_spent }))
 
   const forecast = computeForecast(currentMonth, historicalEntries, budgetingMode)
-
-  const currentRow = history.find((h) => h.month === currentMonth)
-  const actualSoFar = currentRow?.total_spent ?? 0
-
-  const allocation = computeAllocation(forecast, actualSoFar)
-  const expectedByNow = forecast * pctElapsed
+  const nextMonthForecast = computeForecast(nextMonth, historicalEntries, budgetingMode)
 
   return {
     loading,
@@ -94,11 +83,9 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     history,
     budgetingMode,
     currentMonth,
+    nextMonth,
     forecast,
-    actualSoFar,
-    allocation,
-    expectedByNow,
-    pctElapsed,
+    nextMonthForecast,
     refetch: fetchData,
   }
 }
