@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { computeForecast, computeCalibrationFactor, getConfidence } from '../lib/forecast'
+import { computeForecast, computeCalibrationFactor, findOptimalDecay, getConfidence } from '../lib/forecast'
 import type { BudgetingMode, ConfidenceLevel } from '../lib/forecast'
 import type { Database } from '../lib/database.types'
 
@@ -86,9 +86,11 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     .filter((h) => h.month < currentMonth)
     .map((h) => ({ month: h.month, totalSpent: h.total_spent }))
 
-  const calibration = computeCalibrationFactor(historicalEntries, budgetingMode)
-  const forecast = computeForecast(currentMonth, historicalEntries, budgetingMode) * calibration
-  const nextMonthForecast = computeForecast(nextMonth, historicalEntries, budgetingMode) * calibration
+  // #4 adaptive decay — tuned per user's data via leave-one-out CV
+  const decay = findOptimalDecay(historicalEntries, budgetingMode)
+  const calibration = computeCalibrationFactor(historicalEntries, budgetingMode, new Date(), decay)
+  const forecast = computeForecast(currentMonth, historicalEntries, budgetingMode, new Date(), decay) * calibration
+  const nextMonthForecast = computeForecast(nextMonth, historicalEntries, budgetingMode, new Date(), decay) * calibration
 
   const targetCalMonth = currentMonth.slice(5, 7)
   const sameMonthCount = historicalEntries.filter(
@@ -105,7 +107,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   let projectedRemaining = 0
   for (let m = currentMonthNum; m <= 12; m++) {
     const month = `${currentYear}-${String(m).padStart(2, '0')}`
-    projectedRemaining += computeForecast(month, historicalEntries, budgetingMode) * calibration
+    projectedRemaining += computeForecast(month, historicalEntries, budgetingMode, new Date(), decay) * calibration
   }
   const projectedAnnual = yearToDate + projectedRemaining
 
@@ -116,7 +118,8 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   if (lastCompleted) {
     const priorEntries = historicalEntries.filter(e => e.month < lastCompleted.month)
     const lastForecast = priorEntries.length > 0
-      ? computeForecast(lastCompleted.month, priorEntries, budgetingMode) * computeCalibrationFactor(priorEntries, budgetingMode)
+      ? computeForecast(lastCompleted.month, priorEntries, budgetingMode, new Date(), decay) *
+        computeCalibrationFactor(priorEntries, budgetingMode, new Date(), decay)
       : 0
     lastMonthSummary = { month: lastCompleted.month, actual: lastCompleted.total_spent, forecast: lastForecast }
   }

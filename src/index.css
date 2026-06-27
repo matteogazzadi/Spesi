@@ -766,6 +766,58 @@ body {
 @media (max-width: 640px) { .settings-grid { grid-template-columns: 1fr; } }
 .settings-grid .card { margin-bottom: 0; }
 
+/* ── Year tab selector ───────────────────────────────── */
+.year-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.year-tab {
+  padding: 6px 20px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  letter-spacing: .01em;
+}
+.year-tab:hover { border-color: var(--accent); color: var(--accent); }
+.year-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Row action buttons ──────────────────────────────── */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-action {
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.btn-action:hover:not(:disabled) { background: var(--border); color: var(--text); }
+.btn-action:disabled { opacity: .45; cursor: not-allowed; }
+.btn-action-save { border-color: var(--accent); color: var(--accent); }
+.btn-action-save:hover:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-action-del:hover:not(:disabled) { border-color: var(--over); color: var(--over); background: transparent; }
+
 /* ── Months list (mobile-friendly) ──────────────────── */
 .months-list {
   display: flex;
@@ -776,7 +828,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--border);
 }
 .month-row:last-child { border-bottom: none; }
@@ -785,11 +837,12 @@ body {
   min-width: 0;
 }
 .month-row-name {
-  font-size: .95rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text);
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  letter-spacing: -.01em;
 }
 a.month-row-name { color: var(--accent); text-decoration: none; }
 a.month-row-name:hover { text-decoration: underline; }
@@ -803,19 +856,27 @@ a.month-row-name:hover { text-decoration: underline; }
 .month-row-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
 }
 .month-row-amount {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: -.01em;
+  letter-spacing: -.02em;
   white-space: nowrap;
 }
 @media (max-width: 500px) {
   .month-row { flex-wrap: wrap; }
-  .month-row-right { width: 100%; justify-content: flex-end; }
+  .month-row-right { width: 100%; justify-content: space-between; }
   .month-row-meta { white-space: normal; }
+}
+
+/* ── Months card header ──────────────────────────────── */
+.months-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
 /* ── Dark mode ───────────────────────────────────────── */
