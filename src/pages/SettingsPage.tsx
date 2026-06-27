@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../contexts/useAuth'
 import { useUserSettings } from '../hooks/useUserSettings'
+import { useTheme } from '../contexts/ThemeContext'
 
 export function SettingsPage() {
   const { user } = useAuth()
   const { budgetingMode, annualTarget, loading, saving, error, updateBudgetingMode, updateAnnualTarget } =
     useUserSettings(user!.id)
+  const { theme, toggleTheme } = useTheme()
 
   const [targetInput, setTargetInput] = useState('')
   const [editingTarget, setEditingTarget] = useState(false)
@@ -141,6 +143,41 @@ export function SettingsPage() {
               {saving && <p className="col-muted" style={{ fontSize: '.8rem' }}>Saving…</p>}
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Appearance</div>
+        <p style={{ fontSize: '.875rem', color: 'var(--text-muted)', marginBottom: 20 }}>
+          Choose how Spesi looks. Your preference is saved and synced across sessions.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="theme"
+              value="light"
+              checked={theme === 'light'}
+              onChange={() => theme !== 'light' && toggleTheme()}
+            />
+            <div>
+              <span className="radio-label">Light</span>
+              <span className="radio-desc">Clean white background, easy to read in daylight.</span>
+            </div>
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="theme"
+              value="dark"
+              checked={theme === 'dark'}
+              onChange={() => theme !== 'dark' && toggleTheme()}
+            />
+            <div>
+              <span className="radio-label">Dark</span>
+              <span className="radio-desc">Dark background, easier on the eyes in low light.</span>
+            </div>
+          </label>
         </div>
       </div>
     </AppLayout>

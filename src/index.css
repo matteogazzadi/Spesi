@@ -796,3 +796,112 @@ a.month-row-name:hover { text-decoration: underline; }
   .month-row-right { width: 100%; justify-content: flex-end; }
   .month-row-meta { white-space: normal; }
 }
+
+/* ── Dark mode ───────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg: #0F172A;
+  --bg-card: #1E293B;
+  --bg-input: #0F172A;
+  --text: #F1F5F9;
+  --text-muted: #94A3B8;
+  --border: #334155;
+  --over: #F59E0B;
+  --under: #60A5FA;
+  --accent: #818CF8;
+  --accent-hover: #6366F1;
+  --shadow: 0 1px 3px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.35);
+}
+
+[data-theme="dark"] .msg-error {
+  background: rgba(245,158,11,.1);
+  border-color: rgba(245,158,11,.3);
+  color: #FCD34D;
+}
+[data-theme="dark"] .msg-success {
+  background: rgba(96,165,250,.1);
+  border-color: rgba(96,165,250,.25);
+  color: #93C5FD;
+}
+[data-theme="dark"] .msg-info {
+  background: rgba(129,140,248,.1);
+  border-color: rgba(129,140,248,.25);
+  color: #A5B4FC;
+}
+[data-theme="dark"] .upload-zone:hover { background: rgba(129,140,248,.07); }
+[data-theme="dark"] .btn-action-del:hover { background: rgba(245,158,11,.1); }
+[data-theme="dark"] .annual-target-badge {
+  background: rgba(129,140,248,.12);
+  border-color: rgba(129,140,248,.25);
+}
+[data-theme="dark"] .radio-option:hover { border-color: var(--accent); }
+[data-theme="dark"] .auth-panel { background: var(--bg); }
+[data-theme="dark"] .impact-badge { background: rgba(245,158,11,.15); }
+
+/* ── Theme toggle button ─────────────────────────────── */
+.btn-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.btn-theme-toggle:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* ── Year over year chart ────────────────────────────── */
+.yoy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.yoy-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.yoy-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.yoy-legend-dot {
+  width: 10px; height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.yoy-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.yoy-svg {
+  width: 100%;
+  display: block;
+  overflow: visible;
+}
+.yoy-x-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+.yoy-x-label {
+  font-size: .65rem;
+  color: var(--text-muted);
+  text-align: center;
+  flex: 1;
+}
