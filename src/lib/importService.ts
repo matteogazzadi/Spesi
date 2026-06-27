@@ -102,6 +102,29 @@ async function updateTotalSpent(
   if (error) throw new Error(`Failed to update total_spent: ${error.message}`)
 }
 
+export async function recalculateMonthTotal(
+  monthlyTotalId: string,
+  db: SupabaseClient<Database>,
+): Promise<void> {
+  const { data, error } = await db
+    .from('transactions')
+    .select('amount, excluded')
+    .eq('monthly_total_id', monthlyTotalId)
+
+  if (error) throw new Error(`Failed to fetch transactions: ${error.message}`)
+
+  const totalSpent = computeTotalSpent(
+    (data ?? []).map((t) => ({
+      date: '', month: '', description: '',
+      amount: t.amount,
+      excluded: t.excluded,
+      excludedByRuleId: null,
+    })),
+  )
+
+  await updateTotalSpent(monthlyTotalId, totalSpent, db)
+}
+
 export async function importFile(
   file: File,
   userId: string,

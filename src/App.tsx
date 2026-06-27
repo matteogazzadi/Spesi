@@ -1,10 +1,15 @@
 import './index.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { useAuth } from './contexts/useAuth'
 import { AuthPage } from './pages/AuthPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { RulesPage } from './pages/RulesPage'
+import { SettingsPage } from './pages/SettingsPage'
+import { MonthsPage } from './pages/MonthsPage'
+import { MonthDetailPage } from './pages/MonthDetailPage'
 
-function AppInner() {
+function AppRoutes() {
   const { authLevel } = useAuth()
 
   if (authLevel === 'loading') {
@@ -15,17 +20,28 @@ function AppInner() {
     )
   }
 
-  if (authLevel === 'aal2') {
-    return <DashboardPage />
+  if (authLevel !== 'aal2') {
+    return <AuthPage />
   }
 
-  return <AuthPage />
+  return (
+    <Routes>
+      <Route path="/" element={<DashboardPage />} />
+      <Route path="/rules" element={<RulesPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/months" element={<MonthsPage />} />
+      <Route path="/months/:month" element={<MonthDetailPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }
 
 function App() {
   return (
     <AuthProvider>
-      <AppInner />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </AuthProvider>
   )
 }
