@@ -37,8 +37,29 @@ body {
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--shadow);
+  overflow: hidden; /* contain nav overflow within the header */
 }
 .app-header h1 { font-size: 1.25rem; letter-spacing: .01em; font-weight: 700; }
+
+/* Left side: logo + nav — takes all available space, lets nav scroll */
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Nav scrolls horizontally on mobile without showing a scrollbar */
+.app-nav {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  flex-shrink: 1;
+}
+.app-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.app-nav .nav-link { white-space: nowrap; flex-shrink: 0; }
 .app-main { max-width: 860px; margin: 0 auto; padding: 32px 20px; width: 100%; }
 
 /* ── Cards ───────────────────────────────────────────── */
