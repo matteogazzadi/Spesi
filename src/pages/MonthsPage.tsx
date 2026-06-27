@@ -40,6 +40,11 @@ export function MonthsPage() {
   const [manualError, setManualError] = useState<string | null>(null)
   const [manualSuccess, setManualSuccess] = useState<string | null>(null)
 
+  const [selectedYear, setSelectedYear] = useState<string>('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editAmount, setEditAmount] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
+
   const fetchMonths = useCallback(async () => {
     setLoading(true); setError(null)
     try {
@@ -57,21 +62,30 @@ export function MonthsPage() {
         counts.set(tx.monthly_total_id, curr)
       }
 
-      setMonths(
-        (monthsRes.data ?? []).map(m => ({
-          ...m,
-          txCount: counts.get(m.id)?.total ?? 0,
-          excludedCount: counts.get(m.id)?.excluded ?? 0,
-        })),
-      )
+      const all = (monthsRes.data ?? []).map(m => ({
+        ...m,
+        txCount: counts.get(m.id)?.total ?? 0,
+        excludedCount: counts.get(m.id)?.excluded ?? 0,
+      }))
+      setMonths(all)
+
+      // Auto-select current year, or latest year with data
+      if (!selectedYear && all.length > 0) {
+        const currentYear = String(new Date().getFullYear())
+        const hasCurrentYear = all.some(m => m.month.startsWith(currentYear))
+        setSelectedYear(hasCurrentYear ? currentYear : all[0].month.slice(0, 4))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load months')
     } finally {
       setLoading(false)
     }
-  }, [userId])
+  }, [userId, selectedYear])
 
   useEffect(() => { fetchMonths() }, [fetchMonths])
+
+  const years = [...new Set(months.map(m => m.month.slice(0, 4)))].sort((a, b) => b.localeCompare(a))
+  const visible = months.filter(m => m.month.startsWith(selectedYear))
 
   async function handleManualSave(e: React.FormEvent) {
     e.preventDefault()
@@ -88,6 +102,42 @@ export function MonthsPage() {
     if (err) { setManualError(err.message); return }
     setManualSuccess(`Saved ${manualMonth}`)
     setManualMonth(''); setManualAmount('')
+    // Switch to the year of the saved entry
+    setSelectedYear(manualMonth.slice(0, 4))
+    await fetchMonths()
+  }
+
+  function startEdit(m: MonthWithStats) {
+    setEditingId(m.id)
+    setEditAmount(String(m.total_spent))
+  }
+
+  async function saveEdit(m: MonthWithStats) {
+    const amount = parseFloat(editAmount)
+    if (isNaN(amount) || amount < 0) return
+    setSavingEdit(true)
+    const { error: err } = await supabase
+      .from('monthly_totals')
+      .update({ total_spent: amount, last_imported_at: new Date().toISOString() })
+      .eq('id', m.id)
+      .eq('user_id', userId)
+    setSavingEdit(false)
+    if (err) { setError(err.message); return }
+    setEditingId(null)
+    await fetchMonths()
+  }
+
+  async function handleDelete(m: MonthWithStats) {
+    const label = m.txCount > 0
+      ? `Delete ${m.month} and its ${m.txCount} transactions?`
+      : `Delete ${m.month}?`
+    if (!window.confirm(label + ' This cannot be undone.')) return
+    const { error: err } = await supabase
+      .from('monthly_totals')
+      .delete()
+      .eq('id', m.id)
+      .eq('user_id', userId)
+    if (err) { setError(err.message); return }
     await fetchMonths()
   }
 
@@ -159,11 +209,27 @@ export function MonthsPage() {
       {error && <div className="msg msg-error" style={{ marginTop: 16 }}>{error}</div>}
 
       <div className="card" style={{ marginTop: 20 }}>
-        <div className="card-title">History</div>
+        {years.length > 1 && (
+          <div className="year-tabs">
+            {years.map(y => (
+              <button
+                key={y}
+                className={`year-tab${selectedYear === y ? ' active' : ''}`}
+                onClick={() => setSelectedYear(y)}
+              >
+                {y}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="card-title" style={{ marginTop: years.length > 1 ? 16 : 0 }}>
+          {selectedYear || 'History'}
+        </div>
+
         {loading ? (
           <div className="spinner" style={{ margin: '20px auto' }} />
-        ) : months.length === 0 ? (
-          <p className="col-muted" style={{ fontSize: '.875rem' }}>No months added yet.</p>
+        ) : visible.length === 0 ? (
+          <p className="col-muted" style={{ fontSize: '.875rem' }}>No months for {selectedYear}.</p>
         ) : (
           <table className="data-table">
             <thead>
@@ -172,45 +238,82 @@ export function MonthsPage() {
                 <th style={{ textAlign: 'right' }}>Total spent</th>
                 <th style={{ textAlign: 'right' }}>Transactions</th>
                 <th>Last updated</th>
-                <th></th>
+                <th style={{ textAlign: 'right' }}></th>
               </tr>
             </thead>
             <tbody>
-              {months.map(m => (
-                <tr key={m.id}>
-                  <td>
-                    {m.txCount > 0
-                      ? <Link to={`/months/${m.month}`} className="month-link">{m.month}</Link>
-                      : <span>{m.month}</span>
-                    }
-                  </td>
-                  <td style={{ textAlign: 'right' }}><span className="num">{fmt(m.total_spent)}</span></td>
-                  <td style={{ textAlign: 'right', color: 'var(--text-muted)', fontSize: '.875rem' }}>
-                    {m.txCount > 0 ? (
-                      <>
-                        {m.txCount}
-                        {m.excludedCount > 0 && (
-                          <span style={{ color: 'var(--over)', marginLeft: 4 }}>({m.excludedCount} excl.)</span>
+              {visible.map(m => {
+                const isEditing = editingId === m.id
+                return (
+                  <tr key={m.id}>
+                    <td>
+                      {m.txCount > 0
+                        ? <Link to={`/months/${m.month}`} className="month-link">{m.month}</Link>
+                        : <span>{m.month}</span>
+                      }
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {isEditing ? (
+                        <input
+                          className="inline-edit"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={editAmount}
+                          onChange={e => setEditAmount(e.target.value)}
+                          autoFocus
+                          style={{ width: 100 }}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') saveEdit(m)
+                            if (e.key === 'Escape') setEditingId(null)
+                          }}
+                        />
+                      ) : (
+                        <span className="num">{fmt(m.total_spent)}</span>
+                      )}
+                    </td>
+                    <td style={{ textAlign: 'right', color: 'var(--text-muted)', fontSize: '.875rem' }}>
+                      {m.txCount > 0 ? (
+                        <>
+                          {m.txCount}
+                          {m.excludedCount > 0 && (
+                            <span style={{ color: 'var(--over)', marginLeft: 4 }}>({m.excludedCount} excl.)</span>
+                          )}
+                        </>
+                      ) : (
+                        <span style={{ fontStyle: 'italic' }}>manual</span>
+                      )}
+                    </td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: '.8rem' }}>{fmtDate(m.last_imported_at)}</td>
+                    <td>
+                      <div className="row-actions">
+                        {isEditing ? (
+                          <>
+                            <button className="btn-action btn-action-save" onClick={() => saveEdit(m)} disabled={savingEdit}>
+                              {savingEdit ? '…' : 'Save'}
+                            </button>
+                            <button className="btn-action" onClick={() => setEditingId(null)}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            {m.txCount > 0 && (
+                              <button
+                                className="btn-action"
+                                onClick={() => handleReuploadClick(m.month)}
+                                disabled={uploading === m.month}
+                              >
+                                {uploading === m.month ? '…' : 'Re-upload'}
+                              </button>
+                            )}
+                            <button className="btn-action" onClick={() => startEdit(m)}>Edit</button>
+                            <button className="btn-action btn-action-del" onClick={() => handleDelete(m)}>Delete</button>
+                          </>
                         )}
-                      </>
-                    ) : (
-                      <span style={{ fontStyle: 'italic' }}>manual</span>
-                    )}
-                  </td>
-                  <td style={{ color: 'var(--text-muted)', fontSize: '.8rem' }}>{fmtDate(m.last_imported_at)}</td>
-                  <td>
-                    {m.txCount > 0 && (
-                      <button
-                        className="btn-ghost"
-                        onClick={() => handleReuploadClick(m.month)}
-                        disabled={uploading === m.month}
-                      >
-                        {uploading === m.month ? 'Uploading…' : 'Re-upload'}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         )}
