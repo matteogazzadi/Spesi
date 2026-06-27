@@ -44,7 +44,9 @@ export function AuthPage() {
   const [loading, setLoading] = useState(false)
 
   const [qrCode, setQrCode] = useState('')
+  const [totpSecret, setTotpSecret] = useState('')
   const [factorId, setFactorId] = useState('')
+  const [secretCopied, setSecretCopied] = useState(false)
   const [verifyFactorId, setVerifyFactorId] = useState('')
   const [challengeId, setChallengeId] = useState('')
 
@@ -83,6 +85,7 @@ export function AuthPage() {
     if (err || !data) { setError(err?.message ?? 'Enroll failed'); return }
     setFactorId(data.id)
     setQrCode(data.totp.qr_code)
+    setTotpSecret(data.totp.secret)
     setMode('mfa_enroll')
   }
 
@@ -225,6 +228,25 @@ export function AuthPage() {
                 <>
                   <div className="qr-wrap">
                     <img src={qrCode} alt="TOTP QR code" />
+                  </div>
+                  <div className="totp-secret-wrap">
+                    <p className="totp-secret-label">
+                      Can't scan? Copy this key into your authenticator app manually:
+                    </p>
+                    <div className="totp-secret-row">
+                      <code className="totp-secret">{totpSecret}</code>
+                      <button
+                        type="button"
+                        className="btn-copy"
+                        onClick={() => {
+                          navigator.clipboard.writeText(totpSecret)
+                          setSecretCopied(true)
+                          setTimeout(() => setSecretCopied(false), 2000)
+                        }}
+                      >
+                        {secretCopied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
                   </div>
                   <form onSubmit={handleEnrollVerify}>
                     <div className="form-group">

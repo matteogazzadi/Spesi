@@ -331,6 +331,48 @@ body {
 .qr-wrap { display: flex; justify-content: center; margin: 16px 0; }
 .qr-wrap img { width: 180px; height: 180px; border: 1px solid var(--border); border-radius: 4px; }
 
+/* ── TOTP manual secret ──────────────────────────────── */
+.totp-secret-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+.totp-secret-label {
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+.totp-secret-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.totp-secret {
+  flex: 1;
+  font-family: ui-monospace, monospace;
+  font-size: .82rem;
+  letter-spacing: .08em;
+  color: var(--text);
+  word-break: break-all;
+}
+.btn-copy {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 12px;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.btn-copy:hover { background: var(--accent-hover); }
+
 /* ── Divider ─────────────────────────────────────────── */
 .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
