@@ -3,7 +3,6 @@ import { useAuth } from '../contexts/useAuth'
 import { useMonthlyData } from '../hooks/useMonthlyData'
 import { CurrentMonthCard } from '../components/CurrentMonthCard'
 import { HistoryStrip } from '../components/HistoryStrip'
-import { UploadZone } from '../components/UploadZone'
 
 export function DashboardPage() {
   const { user } = useAuth()
@@ -27,7 +26,6 @@ export function DashboardPage() {
             budgetingMode={data.budgetingMode}
             currentMonth={data.currentMonth}
           />
-          <UploadZone userId={userId} onImported={data.refetch} />
         </>
       )}
     </AppLayout>

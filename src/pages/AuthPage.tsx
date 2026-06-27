@@ -29,11 +29,10 @@ const FEATURES = [
 
 export function AuthPage() {
   const { authLevel, refreshAuthLevel } = useAuth()
-  const initialMode: Mode = authLevel === 'aal1_no_mfa'
-    ? 'mfa_enroll'
-    : authLevel === 'aal1_need_verify'
-    ? 'mfa_verify'
-    : 'login'
+  // Always start at 'login' when 2FA is pending so the useEffect below
+  // can call startMfaVerify and populate verifyFactorId/challengeId before
+  // the form is shown — avoids "factor_id must be an UUID" on submit.
+  const initialMode: Mode = authLevel === 'aal1_no_mfa' ? 'mfa_enroll' : 'login'
 
   const [mode, setMode] = useState<Mode>(initialMode)
   const [email, setEmail] = useState('')

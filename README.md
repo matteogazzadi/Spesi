@@ -1,8 +1,8 @@
 # Spesi
 
-A personal budgeting app that learns from spending history to tell you how much to set aside each month. That's the entire purpose — **not** an expense tracker, not a categorization tool, no charts about where money goes. Just: "based on past months, here's what you should allocate this month."
+A personal budgeting app that learns from your spending history to tell you how much to allocate each month. That's the entire purpose — **not** an expense tracker, not a categorization tool, no charts about where money goes. Just: "based on past months, here's what your budget should be."
 
-The idea: if you typically spend around €1,800 in June, the app tells you **before** the month starts, and shows you in real time whether you're spending in line with, above, or below your historical average. The more months you upload, the more accurate the estimate becomes.
+The idea: if you typically spend around €1,800 in June, the app tells you **before** June starts and before next month too, so you know what to set aside. The more months you add, the more accurate the forecast becomes.
 
 ## Explicitly out of scope
 
@@ -12,51 +12,49 @@ To keep this simple and focused, the following are **intentionally not features*
 - Transaction-level tagging or notes
 - Budgets per category
 
-Only two numbers matter per month: **total spent** and **total to set aside**.
+Only one number matters per month: **total spent**.
 
 ## Features
 
-- 📊 **Forecast vs actual dashboard** — for the current month, compare your historical average total spending with your real, updated total spending
-- 📈 **12+ month history** — at-a-glance view of monthly totals, with months over/under the historical average highlighted
-- 💰 **Allocation suggestion** — the core feature: automatic calculation of how much to set aside this month, based on the historical pattern for that specific calendar month
-- 📥 **Direct import from Sella Excel files** — upload the .xlsx file, the app sums total outgoings for the month automatically (no categorization needed)
-- 🔐 **Protected access** — login with username/password and MFA (two-factor authentication)
-- ☁️ **Accessible from anywhere** — hosted online, usable from PC, tablet, or phone
+- **Budget forecast** — see your expected spending for the current month and next month, based on your historical average for that calendar month
+- **12-month history** — bar chart of monthly totals with forecast overlay; months over/under highlighted
+- **Manual month entry** — type in how much you spent for any past month — no bank export required, works with any bank
+- **Banca Sella Excel import** — upload the `.xlsx` statement export and the app sums total outgoings automatically
+- **Exclusion rules** — filter out salary credits, transfers, and recurring noise with contains/exact-match rules
+- **Secure by default** — login with email/password and mandatory TOTP two-factor authentication; every row protected by Postgres Row-Level Security
 
 ## Tech stack
 
 | Layer | Technology | Notes |
 |---|---|---|
-| Frontend | React | Hosted for free on Vercel |
-| Database | Supabase (PostgreSQL) | Free tier, 500MB |
-| Authentication | Supabase Auth | Username/password + MFA (TOTP) |
-| File processing | Client-side JS | Excel files are read directly in the browser, no raw file upload to a server |
+| Frontend | React 18 + Vite | Hosted on Vercel |
+| Database | Supabase (PostgreSQL) | Free tier, 500 MB |
+| Authentication | Supabase Auth | Email/password + mandatory MFA (TOTP) |
+| File processing | Client-side JS (SheetJS) | Excel files parsed in the browser — no raw file upload |
 
-All services used are on free tiers. No sensitive banking data (IBAN, account number) is stored — only transaction date and amount.
+All services are on free tiers. No sensitive banking data (IBAN, account number) is stored — only transaction date and amount.
 
 ## How it works
 
-1. **Initial historical upload**: import Excel files covering the last 2 years (all at once, if you like). The app reads each file and sums total outgoings per month — no categorization, just one number per month.
-2. **Pattern calculation**: the app calculates the historical average total for each calendar month (e.g. average of all past Junes)
-3. **Monthly update**: each month you upload the new statement, the app adds the new total to the history and refines the forecast for that month going forward
-4. **Allocation suggestion**: for the current month, the app compares the expected total (historical average) vs the actual total so far, and suggests how much to set aside to stay covered through the rest of the month
+1. **Add past months**: either upload Banca Sella Excel exports or type in the total manually for each month
+2. **Pattern detection**: the app averages historical totals for each calendar month (e.g. average of all past Junes)
+3. **Budget display**: the dashboard shows the forecast for the current month and next month
+4. **History chart**: 12-month bar chart compares actual spend against the forecast for each past month
 
-## Local setup (development)
+## Local setup
 
 ```bash
-git clone https://github.com/<your-username>/spesi.git
-cd spesi
+git clone https://github.com/matteogazzadi/Spesi.git
+cd Spesi
 npm install
 ```
 
-Create a `.env.local` file in the project root with your Supabase project keys:
+Create a `.env.local` file:
 
 ```
 VITE_SUPABASE_URL=https://<your-project>.supabase.co
 VITE_SUPABASE_ANON_KEY=<your-anon-key>
 ```
-
-Run locally:
 
 ```bash
 npm run dev
@@ -64,24 +62,17 @@ npm run dev
 
 ## Deployment
 
-The project is set up for automatic deployment on **Vercel**, connected to the GitHub repo: every push to the main branch automatically updates the live version.
+Connected to Vercel — every push to `main` deploys automatically to [spesi.vercel.app](https://spesi.vercel.app).
+
+Database migrations are applied automatically via GitHub Actions (`db-migrate.yml`) on push to `main` when files under `supabase/migrations/` change. Requires three repository secrets: `SUPABASE_PROJECT_ID`, `SUPABASE_DB_PASSWORD`, `SUPABASE_ACCESS_TOKEN`.
 
 ## Privacy and data security
 
-- Login required with MFA to access data
-- Database protected by Supabase Row Level Security (each user only sees their own data)
+- Mandatory MFA (TOTP) for all accounts
+- Postgres Row-Level Security — each user sees only their own data
 - No sensitive banking data beyond transaction date and amount
-- HTTPS connection across all services
-
-## Roadmap
-
-- [ ] Banca Sella Excel importer
-- [ ] Monthly historical average calculation
-- [ ] Forecast vs actual dashboard
-- [ ] Login + MFA
-- [ ] Deploy to Vercel
-- [ ] (Optional) Google Sheets sync
+- HTTPS across all services
 
 ## Project status
 
-🚧 In development — initial version.
+Active development.
