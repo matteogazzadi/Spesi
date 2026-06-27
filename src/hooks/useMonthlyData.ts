@@ -5,6 +5,7 @@ import type { BudgetingMode, ConfidenceLevel } from '../lib/forecast'
 import type { Database } from '../lib/database.types'
 
 type MonthlyTotalRow = Database['public']['Tables']['monthly_totals']['Row']
+export type PlannedExpense = Database['public']['Tables']['planned_expenses']['Row']
 
 function currentYearMonth(): string {
   const d = new Date()
@@ -17,6 +18,12 @@ function nextYearMonth(current: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
+function extraForMonth(expenses: PlannedExpense[], month: string): number {
+  return expenses
+    .filter(e => e.month === month)
+    .reduce((sum, e) => sum + e.amount * (e.unplanned_pct / 100), 0)
+}
+
 export interface LastMonthSummary {
   month: string
   actual: number
@@ -27,12 +34,15 @@ export interface MonthlyDataResult {
   loading: boolean
   error: string | null
   history: MonthlyTotalRow[]
+  plannedExpenses: PlannedExpense[]
   budgetingMode: BudgetingMode
   annualTarget: number | null
   currentMonth: string
   nextMonth: string
   forecast: number
+  adjustedForecast: number
   nextMonthForecast: number
+  nextMonthAdjustedForecast: number
   confidence: ConfidenceLevel
   yearToDate: number
   projectedAnnual: number
@@ -45,6 +55,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [history, setHistory] = useState<MonthlyTotalRow[]>([])
+  const [plannedExpenses, setPlannedExpenses] = useState<PlannedExpense[]>([])
   const [budgetingMode, setBudgetingMode] = useState<BudgetingMode>('all_time')
   const [annualTarget, setAnnualTarget] = useState<number | null>(null)
 
@@ -52,7 +63,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     setLoading(true)
     setError(null)
     try {
-      const [totalsRes, settingsRes] = await Promise.all([
+      const [totalsRes, settingsRes, plannedRes] = await Promise.all([
         supabase
           .from('monthly_totals')
           .select('*')
@@ -63,12 +74,18 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
           .select('budgeting_mode, annual_target')
           .eq('user_id', userId)
           .maybeSingle(),
+        supabase
+          .from('planned_expenses')
+          .select('*')
+          .eq('user_id', userId)
+          .order('month', { ascending: true }),
       ])
 
       if (totalsRes.error) throw new Error(totalsRes.error.message)
       setHistory(totalsRes.data ?? [])
       setBudgetingMode(settingsRes.data?.budgeting_mode ?? 'all_time')
       setAnnualTarget(settingsRes.data?.annual_target ?? null)
+      setPlannedExpenses(plannedRes.data ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
     } finally {
@@ -92,13 +109,17 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   const forecast = computeForecast(currentMonth, historicalEntries, budgetingMode, new Date(), decay) * calibration
   const nextMonthForecast = computeForecast(nextMonth, historicalEntries, budgetingMode, new Date(), decay) * calibration
 
+  // Adjusted forecasts include the unplanned portion of planned expenses
+  const adjustedForecast = forecast + extraForMonth(plannedExpenses, currentMonth)
+  const nextMonthAdjustedForecast = nextMonthForecast + extraForMonth(plannedExpenses, nextMonth)
+
   const targetCalMonth = currentMonth.slice(5, 7)
   const sameMonthCount = historicalEntries.filter(
     (e) => e.month.slice(5, 7) === targetCalMonth,
   ).length
   const confidence = getConfidence(sameMonthCount, historicalEntries.length)
 
-  // Year-to-date actual + full-year projection
+  // Year-to-date actual + full-year projection (including planned extras)
   const yearToDate = history
     .filter((h) => h.month.startsWith(currentYear) && h.month < currentMonth)
     .reduce((sum, h) => sum + h.total_spent, 0)
@@ -107,7 +128,8 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   let projectedRemaining = 0
   for (let m = currentMonthNum; m <= 12; m++) {
     const month = `${currentYear}-${String(m).padStart(2, '0')}`
-    projectedRemaining += computeForecast(month, historicalEntries, budgetingMode, new Date(), decay) * calibration
+    const baseFc = computeForecast(month, historicalEntries, budgetingMode, new Date(), decay) * calibration
+    projectedRemaining += baseFc + extraForMonth(plannedExpenses, month)
   }
   const projectedAnnual = yearToDate + projectedRemaining
 
@@ -137,12 +159,15 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     loading,
     error,
     history,
+    plannedExpenses,
     budgetingMode,
     annualTarget,
     currentMonth,
     nextMonth,
     forecast,
+    adjustedForecast,
     nextMonthForecast,
+    nextMonthAdjustedForecast,
     confidence,
     yearToDate,
     projectedAnnual,

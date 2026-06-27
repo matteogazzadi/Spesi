@@ -161,6 +161,44 @@ export type Database = {
           },
         ]
       }
+      planned_expenses: {
+        Row: {
+          id: string
+          user_id: string
+          month: string
+          description: string
+          amount: number
+          unplanned_pct: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          month: string
+          description: string
+          amount: number
+          unplanned_pct?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          month?: string
+          description?: string
+          amount?: number
+          unplanned_pct?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'planned_expenses_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

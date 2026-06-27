@@ -21,8 +21,10 @@ interface Props {
 }
 
 export function CurrentMonthCard({ data }: Props) {
-  const { forecast, nextMonthForecast, currentMonth, nextMonth, confidence, trendPct } = data
+  const { forecast, adjustedForecast, nextMonthForecast, nextMonthAdjustedForecast, currentMonth, nextMonth, confidence, trendPct } = data
   const conf = CONFIDENCE_CONFIG[confidence]
+  const hasExtras = adjustedForecast > forecast
+  const nextHasExtras = nextMonthAdjustedForecast > nextMonthForecast
 
   return (
     <div className="forecast-hero">
@@ -31,7 +33,14 @@ export function CurrentMonthCard({ data }: Props) {
       <div className="forecast-hero-month">{monthName(currentMonth)}</div>
 
       {forecast > 0 ? (
-        <div className="forecast-hero-amount num">{fmt(forecast)}</div>
+        <>
+          <div className="forecast-hero-amount num">{fmt(hasExtras ? adjustedForecast : forecast)}</div>
+          {hasExtras && (
+            <div className="forecast-hero-extras">
+              Base {fmt(forecast)} + planned extras
+            </div>
+          )}
+        </>
       ) : (
         <div className="forecast-hero-empty">Add past months to see your forecast</div>
       )}
@@ -48,7 +57,8 @@ export function CurrentMonthCard({ data }: Props) {
 
       {nextMonthForecast > 0 && (
         <div className="forecast-hero-next">
-          {monthName(nextMonth)}: {fmt(nextMonthForecast)}
+          {monthName(nextMonth)}: {fmt(nextHasExtras ? nextMonthAdjustedForecast : nextMonthForecast)}
+          {nextHasExtras && ' (incl. extras)'}
         </div>
       )}
     </div>

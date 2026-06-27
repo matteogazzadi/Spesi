@@ -4,6 +4,7 @@ import { useMonthlyData } from '../hooks/useMonthlyData'
 import { CurrentMonthCard } from '../components/CurrentMonthCard'
 import { AnnualProgressCard } from '../components/AnnualProgressCard'
 import { LastMonthCard } from '../components/LastMonthCard'
+import { PlannedExpensesCard } from '../components/PlannedExpensesCard'
 import { HistoryStrip } from '../components/HistoryStrip'
 import { YearOverYearCard } from '../components/YearOverYearCard'
 
@@ -24,6 +25,13 @@ export function DashboardPage() {
       ) : (
         <>
           <CurrentMonthCard data={data} />
+          <PlannedExpensesCard
+            userId={userId}
+            expenses={data.plannedExpenses}
+            currentMonth={data.currentMonth}
+            nextMonth={data.nextMonth}
+            onRefetch={data.refetch}
+          />
           {data.lastMonthSummary && <LastMonthCard summary={data.lastMonthSummary} />}
           <AnnualProgressCard
             year={data.currentMonth.slice(0, 4)}
