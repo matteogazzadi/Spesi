@@ -134,16 +134,19 @@ export type Database = {
           user_id: string
           budgeting_mode: 'all_time' | 'rolling_12mo'
           annual_target: number | null
+          theme: 'light' | 'dark' | null
         }
         Insert: {
           user_id: string
           budgeting_mode?: 'all_time' | 'rolling_12mo'
           annual_target?: number | null
+          theme?: 'light' | 'dark' | null
         }
         Update: {
           user_id?: string
           budgeting_mode?: 'all_time' | 'rolling_12mo'
           annual_target?: number | null
+          theme?: 'light' | 'dark' | null
         }
         Relationships: [
           {

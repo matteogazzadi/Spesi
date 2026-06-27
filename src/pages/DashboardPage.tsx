@@ -4,6 +4,7 @@ import { useMonthlyData } from '../hooks/useMonthlyData'
 import { CurrentMonthCard } from '../components/CurrentMonthCard'
 import { AnnualProgressCard } from '../components/AnnualProgressCard'
 import { HistoryStrip } from '../components/HistoryStrip'
+import { YearOverYearCard } from '../components/YearOverYearCard'
 
 export function DashboardPage() {
   const { user } = useAuth()
@@ -33,6 +34,7 @@ export function DashboardPage() {
             budgetingMode={data.budgetingMode}
             currentMonth={data.currentMonth}
           />
+          <YearOverYearCard history={data.history} />
         </>
       )}
     </AppLayout>

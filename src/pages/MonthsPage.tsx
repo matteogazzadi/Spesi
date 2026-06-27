@@ -87,6 +87,26 @@ export function MonthsPage() {
   const years = [...new Set(months.map(m => m.month.slice(0, 4)))].sort((a, b) => b.localeCompare(a))
   const visible = months.filter(m => m.month.startsWith(selectedYear))
 
+  function exportCSV() {
+    const rows = [
+      ['Month', 'Total Spent (EUR)', 'Transactions', 'Last Updated'],
+      ...months.map(m => [
+        m.month,
+        m.total_spent.toFixed(2),
+        String(m.txCount),
+        new Date(m.last_imported_at).toLocaleDateString('it-IT'),
+      ]),
+    ]
+    const csv = rows.map(r => r.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `spesi-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function handleManualSave(e: React.FormEvent) {
     e.preventDefault()
     const amount = parseFloat(manualAmount)
@@ -222,8 +242,13 @@ export function MonthsPage() {
             ))}
           </div>
         )}
-        <div className="card-title" style={{ marginTop: years.length > 1 ? 16 : 0 }}>
-          {selectedYear || 'History'}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: years.length > 1 ? 16 : 0, marginBottom: 16 }}>
+          <div className="card-title" style={{ marginBottom: 0 }}>{selectedYear || 'History'}</div>
+          {months.length > 0 && (
+            <button className="btn-action" onClick={exportCSV} title="Export all data as CSV">
+              Export CSV
+            </button>
+          )}
         </div>
 
         {loading ? (
