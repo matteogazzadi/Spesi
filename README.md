@@ -1,15 +1,25 @@
 # Spesi
 
-A personal budgeting app that learns from your spending history. You upload your bank statements (Banca Sella, Excel format), and the app calculates how much you historically spend each month — so you know in advance how much to set aside.
+A personal budgeting app that learns from spending history to tell you how much to set aside each month. That's the entire purpose — **not** an expense tracker, not a categorization tool, no charts about where money goes. Just: "based on past months, here's what you should allocate this month."
 
 The idea: if you typically spend around €1,800 in June, the app tells you **before** the month starts, and shows you in real time whether you're spending in line with, above, or below your historical average. The more months you upload, the more accurate the estimate becomes.
 
+## Explicitly out of scope
+
+To keep this simple and focused, the following are **intentionally not features**:
+- Expense categories (groceries, rent, entertainment, etc.)
+- Per-category breakdowns or charts
+- Transaction-level tagging or notes
+- Budgets per category
+
+Only two numbers matter per month: **total spent** and **total to set aside**.
+
 ## Features
 
-- 📊 **Forecast vs actual dashboard** — for the current month, compare your historical average spending with your real, updated spending
-- 📈 **12+ month history** — at-a-glance view of trends, with months over/under budget highlighted
-- 💰 **Savings suggestion** — automatic calculation of how much to set aside based on the historical pattern for that specific month
-- 📥 **Direct import from Sella Excel files** — upload the .xlsx file, the app reads and processes it automatically
+- 📊 **Forecast vs actual dashboard** — for the current month, compare your historical average total spending with your real, updated total spending
+- 📈 **12+ month history** — at-a-glance view of monthly totals, with months over/under the historical average highlighted
+- 💰 **Allocation suggestion** — the core feature: automatic calculation of how much to set aside this month, based on the historical pattern for that specific calendar month
+- 📥 **Direct import from Sella Excel files** — upload the .xlsx file, the app sums total outgoings for the month automatically (no categorization needed)
 - 🔐 **Protected access** — login with username/password and MFA (two-factor authentication)
 - ☁️ **Accessible from anywhere** — hosted online, usable from PC, tablet, or phone
 
@@ -26,10 +36,10 @@ All services used are on free tiers. No sensitive banking data (IBAN, account nu
 
 ## How it works
 
-1. **Initial historical upload**: import Excel files covering the last 2 years (all at once, if you like)
-2. **Pattern calculation**: the app groups expenses by month and calculates the historical average for each calendar month
-3. **Monthly update**: each month you upload the new statement, the app adds it to the history and refines the forecast
-4. **Suggestion**: for the current month, the app compares expected vs actual spending and suggests how much to set aside
+1. **Initial historical upload**: import Excel files covering the last 2 years (all at once, if you like). The app reads each file and sums total outgoings per month — no categorization, just one number per month.
+2. **Pattern calculation**: the app calculates the historical average total for each calendar month (e.g. average of all past Junes)
+3. **Monthly update**: each month you upload the new statement, the app adds the new total to the history and refines the forecast for that month going forward
+4. **Allocation suggestion**: for the current month, the app compares the expected total (historical average) vs the actual total so far, and suggests how much to set aside to stay covered through the rest of the month
 
 ## Local setup (development)
 
@@ -75,4 +85,3 @@ The project is set up for automatic deployment on **Vercel**, connected to the G
 ## Project status
 
 🚧 In development — initial version.
-
