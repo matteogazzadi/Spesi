@@ -24,5 +24,8 @@ dist-ssr/
 .DS_Store
 *.sw?
 
+# TypeScript build info
+*.tsbuildinfo
+
 # Supabase local dev
 .supabase/
