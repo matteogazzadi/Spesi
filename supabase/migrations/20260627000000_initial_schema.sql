@@ -1,4 +1,4 @@
--- Initial schema (v2: pooler connection)
+-- Initial schema
 -- Enum types
 create type public.match_type as enum ('contains', 'exact');
 create type public.budgeting_mode as enum ('all_time', 'rolling_12mo');
