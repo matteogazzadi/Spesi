@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../contexts/useAuth'
+import { useTranslation } from '../contexts/LanguageContext'
 import { supabase } from '../lib/supabase'
 import { importFile } from '../lib/importService'
 import { UploadZone } from '../components/UploadZone'
@@ -14,11 +15,8 @@ interface MonthWithStats extends MonthRow {
   excludedCount: number
 }
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('it-IT', {
+function fmtDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
@@ -26,6 +24,9 @@ function fmtDate(iso: string) {
 
 export function MonthsPage() {
   const { user } = useAuth()
+  const { t, locale } = useTranslation()
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
   const userId = user!.id
   const [months, setMonths] = useState<MonthWithStats[]>([])
   const [loading, setLoading] = useState(true)
@@ -87,6 +88,14 @@ export function MonthsPage() {
 
   const years = [...new Set(months.map(m => m.month.slice(0, 4)))].sort((a, b) => b.localeCompare(a))
   const visible = months.filter(m => m.month.startsWith(selectedYear))
+
+  // Medals: top 3 cheapest completed months (all-time, not just visible year)
+  const currentYM = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
+  const completedMonths = months.filter(m => m.month < currentYM)
+  const medalMap = new Map<string, 1 | 2 | 3>()
+  ;[...completedMonths].sort((a, b) => a.total_spent - b.total_spent).slice(0, 3).forEach((m, idx) => {
+    medalMap.set(m.month, (idx + 1) as 1 | 2 | 3)
+  })
 
   function exportCSV() {
     const rows = [
@@ -188,16 +197,16 @@ export function MonthsPage() {
 
   return (
     <AppLayout>
-      <h2 className="page-title">Months</h2>
+      <h2 className="page-title">{t('months.title')}</h2>
 
       <input ref={fileInputRef} type="file" accept=".xls,.xlsx" style={{ display: 'none' }} onChange={handleFileSelected} />
 
       <div className="add-month-grid">
         <div className="card" style={{ marginBottom: 0 }}>
-          <div className="card-title">Add month manually</div>
+          <div className="card-title">{t('months.add_manually')}</div>
           <form onSubmit={handleManualSave} className="manual-entry-form">
             <div className="form-group">
-              <label>Month</label>
+              <label>{t('months.month')}</label>
               <input
                 type="month"
                 value={manualMonth}
@@ -206,7 +215,7 @@ export function MonthsPage() {
               />
             </div>
             <div className="form-group">
-              <label>Total spent (€)</label>
+              <label>{t('months.total')}</label>
               <input
                 type="number"
                 min="0"
@@ -218,7 +227,7 @@ export function MonthsPage() {
               />
             </div>
             <button className="btn btn-primary manual-submit" type="submit" disabled={savingManual}>
-              {savingManual ? 'Saving…' : 'Save'}
+              {savingManual ? t('months.saving') : t('months.save')}
             </button>
           </form>
           {manualError && <div className="msg msg-error" style={{ marginTop: 12, marginBottom: 0 }}>{manualError}</div>}
@@ -246,11 +255,11 @@ export function MonthsPage() {
         )}
         <div className="months-header">
           <div className="card-title" style={{ marginBottom: 0 }}>
-            {selectedYear ? `${selectedYear} spending` : 'History'}
+            {selectedYear ? t('months.spending', { year: selectedYear }) : t('months.history')}
           </div>
           {months.length > 0 && (
-            <button className="btn-action" onClick={exportCSV} title="Export all data as CSV">
-              Export CSV
+            <button className="btn-action" onClick={exportCSV} title={t('common.export_csv')}>
+              {t('common.export_csv')}
             </button>
           )}
         </div>
@@ -258,34 +267,51 @@ export function MonthsPage() {
         {loading ? (
           <div className="spinner" style={{ margin: '20px auto' }} />
         ) : visible.length === 0 ? (
-          <p className="col-muted" style={{ fontSize: '.875rem' }}>No months for {selectedYear}.</p>
+          <p className="col-muted" style={{ fontSize: '.875rem' }}>{t('months.no_data', { year: selectedYear })}</p>
         ) : (
           <div className="months-list">
             {visible.map(m => {
               const isEditing = editingId === m.id
-              const raw = new Date(m.month + '-01').toLocaleString('it-IT', { month: 'long', year: 'numeric' })
+              const raw = new Date(m.month + '-01').toLocaleString(locale, { month: 'long', year: 'numeric' })
               const monthLabel = raw.charAt(0).toUpperCase() + raw.slice(1)
+              const medal = medalMap.get(m.month)
+              const txLabel = m.txCount === 1
+                ? t('months.tx', { n: m.txCount })
+                : t('months.tx_plural', { n: m.txCount })
               return (
                 <div key={m.id} className="month-row">
                   <div className="month-row-info">
-                    {m.txCount > 0
-                      ? <Link to={`/months/${m.month}`} className="month-row-name month-link">{monthLabel}</Link>
-                      : <span className="month-row-name">{monthLabel}</span>
-                    }
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {m.txCount > 0
+                        ? <Link to={`/months/${m.month}`} className="month-row-name month-link">{monthLabel}</Link>
+                        : <span className="month-row-name">{monthLabel}</span>
+                      }
+                      {medal && (
+                        <span
+                          className="medal-badge"
+                          title={t(`months.medal_title_${medal}`)}
+                        >
+                          {t(`months.medal_${medal}`)}
+                        </span>
+                      )}
+                    </div>
                     <div className="month-row-meta">
                       {m.txCount > 0
-                        ? `${m.txCount} transaction${m.txCount === 1 ? '' : 's'}${m.excludedCount > 0 ? ` (${m.excludedCount} excl.)` : ''}`
-                        : 'Manual entry'
+                        ? `${txLabel}${m.excludedCount > 0 ? ` ${t('months.excl', { n: m.excludedCount })}` : ''}`
+                        : t('months.manual')
                       }
-                      {' · '}Updated {fmtDate(m.last_imported_at)}
+                      {' · '}{t('months.updated', { date: fmtDate(m.last_imported_at, locale) })}
                     </div>
+                    {medal && !isEditing && !m.note && (
+                      <div className="medal-congrats">{t(`months.best_${medal}`)}</div>
+                    )}
                     {isEditing ? (
                       <input
                         className="inline-edit month-note-edit"
                         type="text"
                         value={editNote}
                         onChange={e => setEditNote(e.target.value)}
-                        placeholder="Add a note…"
+                        placeholder={t('months.note')}
                         maxLength={200}
                         style={{ marginTop: 6, width: '100%' }}
                         onKeyDown={e => {
@@ -320,9 +346,9 @@ export function MonthsPage() {
                       {isEditing ? (
                         <>
                           <button className="btn-action btn-action-save" onClick={() => saveEdit(m)} disabled={savingEdit}>
-                            {savingEdit ? '…' : 'Save'}
+                            {savingEdit ? '…' : t('common.save')}
                           </button>
-                          <button className="btn-action" onClick={() => setEditingId(null)}>Cancel</button>
+                          <button className="btn-action" onClick={() => setEditingId(null)}>{t('common.cancel')}</button>
                         </>
                       ) : (
                         <>
@@ -332,11 +358,11 @@ export function MonthsPage() {
                               onClick={() => handleReuploadClick(m.month)}
                               disabled={uploading === m.month}
                             >
-                              {uploading === m.month ? '…' : 'Re-upload'}
+                              {uploading === m.month ? '…' : t('common.re_upload')}
                             </button>
                           )}
-                          <button className="btn-action" onClick={() => startEdit(m)}>Edit</button>
-                          <button className="btn-action btn-action-del" onClick={() => handleDelete(m)}>Delete</button>
+                          <button className="btn-action" onClick={() => startEdit(m)}>{t('common.edit')}</button>
+                          <button className="btn-action btn-action-del" onClick={() => handleDelete(m)}>{t('common.delete')}</button>
                         </>
                       )}
                     </div>

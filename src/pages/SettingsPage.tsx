@@ -3,12 +3,18 @@ import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../contexts/useAuth'
 import { useUserSettings } from '../hooks/useUserSettings'
 import { useTheme } from '../contexts/ThemeContext'
+import { useTranslation } from '../contexts/LanguageContext'
+import { LANGUAGES, type LangCode } from '../lib/translations'
 
 export function SettingsPage() {
   const { user } = useAuth()
   const { budgetingMode, annualTarget, loading, saving, error, updateBudgetingMode, updateAnnualTarget } =
     useUserSettings(user!.id)
   const { theme, toggleTheme } = useTheme()
+  const { t, lang, locale, setLang } = useTranslation()
+
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
 
   const [targetInput, setTargetInput] = useState('')
   const [editingTarget, setEditingTarget] = useState(false)
@@ -29,14 +35,13 @@ export function SettingsPage() {
 
   return (
     <AppLayout>
-      <h2 className="page-title">Settings</h2>
+      <h2 className="page-title">{t('settings.title')}</h2>
 
       <div className="settings-grid">
         <div className="card">
-          <div className="card-title">Annual spending target</div>
+          <div className="card-title">{t('settings.annual')}</div>
           <p style={{ fontSize: '.875rem', color: 'var(--text-muted)', marginBottom: 20 }}>
-            Set a yearly budget ceiling. The dashboard will show your progress and whether
-            you're on track.
+            {t('settings.annual_desc')}
           </p>
 
           {error && <div className="msg msg-error">{error}</div>}
@@ -46,19 +51,19 @@ export function SettingsPage() {
           ) : editingTarget ? (
             <form onSubmit={saveTarget} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
-                <label>Target (€)</label>
+                <label>{t('settings.target_label')}</label>
                 <input
                   type="number"
                   min="0"
                   step="100"
                   value={targetInput}
                   onChange={e => setTargetInput(e.target.value)}
-                  placeholder="e.g. 20000"
+                  placeholder={t('settings.target_ph')}
                   autoFocus
                 />
               </div>
               <button className="btn btn-primary" type="submit" disabled={saving} style={{ width: 'auto', marginTop: 21 }}>
-                {saving ? '…' : 'Save'}
+                {saving ? t('common.saving') : t('common.save')}
               </button>
               <button
                 type="button"
@@ -66,7 +71,7 @@ export function SettingsPage() {
                 onClick={() => setEditingTarget(false)}
                 style={{ marginTop: 21 }}
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </form>
           ) : (
@@ -74,21 +79,21 @@ export function SettingsPage() {
               <div>
                 <div style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-.02em', fontVariantNumeric: 'tabular-nums' }}>
                   {annualTarget != null
-                    ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(annualTarget)
-                    : <span style={{ color: 'var(--text-muted)', fontSize: '1rem', fontWeight: 400 }}>Not set</span>
+                    ? fmt(annualTarget)
+                    : <span style={{ color: 'var(--text-muted)', fontSize: '1rem', fontWeight: 400 }}>{t('common.not_set')}</span>
                   }
                 </div>
                 {annualTarget != null && (
-                  <div style={{ fontSize: '.8rem', color: 'var(--text-muted)', marginTop: 2 }}>per year</div>
+                  <div style={{ fontSize: '.8rem', color: 'var(--text-muted)', marginTop: 2 }}>{t('common.per_year')}</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button className="btn-action btn-action-save" onClick={startEditTarget}>
-                  {annualTarget != null ? 'Edit' : 'Set target'}
+                  {annualTarget != null ? t('common.edit') : t('settings.set')}
                 </button>
                 {annualTarget != null && (
                   <button className="btn-action btn-action-del" onClick={() => updateAnnualTarget(null)}>
-                    Remove
+                    {t('settings.remove')}
                   </button>
                 )}
               </div>
@@ -97,9 +102,9 @@ export function SettingsPage() {
         </div>
 
         <div className="card">
-          <div className="card-title">Budgeting mode</div>
+          <div className="card-title">{t('settings.mode')}</div>
           <p style={{ fontSize: '.875rem', color: 'var(--text-muted)', marginBottom: 20 }}>
-            Controls how historical averages are computed for the forecast.
+            {t('settings.mode_desc')}
           </p>
 
           {loading ? (
@@ -116,10 +121,8 @@ export function SettingsPage() {
                   disabled={saving}
                 />
                 <div>
-                  <span className="radio-label">All-time</span>
-                  <span className="radio-desc">
-                    Forecast uses every past occurrence of this calendar month across all years.
-                  </span>
+                  <span className="radio-label">{t('settings.all_time')}</span>
+                  <span className="radio-desc">{t('settings.all_time_desc')}</span>
                 </div>
               </label>
 
@@ -133,23 +136,21 @@ export function SettingsPage() {
                   disabled={saving}
                 />
                 <div>
-                  <span className="radio-label">Rolling 12 months</span>
-                  <span className="radio-desc">
-                    Forecast only looks at the last 12 months of data.
-                  </span>
+                  <span className="radio-label">{t('settings.rolling')}</span>
+                  <span className="radio-desc">{t('settings.rolling_desc')}</span>
                 </div>
               </label>
 
-              {saving && <p className="col-muted" style={{ fontSize: '.8rem' }}>Saving…</p>}
+              {saving && <p className="col-muted" style={{ fontSize: '.8rem' }}>{t('common.saving')}</p>}
             </div>
           )}
         </div>
       </div>
 
       <div className="card">
-        <div className="card-title">Appearance</div>
+        <div className="card-title">{t('settings.appearance')}</div>
         <p style={{ fontSize: '.875rem', color: 'var(--text-muted)', marginBottom: 20 }}>
-          Choose how Spesi looks. Your preference is saved and synced across sessions.
+          {t('settings.appearance_desc')}
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <label className="radio-option">
@@ -161,8 +162,8 @@ export function SettingsPage() {
               onChange={() => theme !== 'light' && toggleTheme()}
             />
             <div>
-              <span className="radio-label">Light</span>
-              <span className="radio-desc">Clean white background, easy to read in daylight.</span>
+              <span className="radio-label">{t('settings.light')}</span>
+              <span className="radio-desc">{t('settings.light_desc')}</span>
             </div>
           </label>
           <label className="radio-option">
@@ -174,10 +175,29 @@ export function SettingsPage() {
               onChange={() => theme !== 'dark' && toggleTheme()}
             />
             <div>
-              <span className="radio-label">Dark</span>
-              <span className="radio-desc">Dark background, easier on the eyes in low light.</span>
+              <span className="radio-label">{t('settings.dark')}</span>
+              <span className="radio-desc">{t('settings.dark_desc')}</span>
             </div>
           </label>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">{t('settings.language')}</div>
+        <p style={{ fontSize: '.875rem', color: 'var(--text-muted)', marginBottom: 20 }}>
+          {t('settings.language_desc')}
+        </p>
+        <div className="lang-grid">
+          {(Object.entries(LANGUAGES) as [LangCode, string][]).map(([code, name]) => (
+            <button
+              key={code}
+              className={`lang-option${lang === code ? ' active' : ''}`}
+              onClick={() => setLang(code)}
+            >
+              <span className="lang-code">{code.toUpperCase()}</span>
+              <span className="lang-name">{name}</span>
+            </button>
+          ))}
         </div>
       </div>
     </AppLayout>

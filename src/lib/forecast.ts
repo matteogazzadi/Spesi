@@ -173,3 +173,46 @@ export function computeAllocation(
 ): number {
   return Math.max(0, forecast - spentSoFar)
 }
+
+function quantile(sorted: number[], p: number): number {
+  if (sorted.length === 0) return 0
+  const i = (sorted.length - 1) * p
+  const lo = Math.floor(i)
+  const hi = Math.ceil(i)
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (i - lo)
+}
+
+/**
+ * Computes a forecast confidence interval using the leave-one-out error distribution.
+ * Returns p10 (optimistic) and p90 (conservative) bounds, or null if not enough data.
+ */
+export function computeForecastInterval(
+  targetMonth: string,
+  history: HistoricalEntry[],
+  mode: BudgetingMode,
+  today: Date = new Date(),
+  decay: number = DEFAULT_DECAY,
+): { low: number; high: number } | null {
+  const sorted = [...history].sort((a, b) => a.month.localeCompare(b.month))
+  if (sorted.length < 4) return null
+
+  const errors: number[] = []
+  for (let i = 3; i < sorted.length; i++) {
+    const prior = sorted.slice(0, i)
+    const fc = computeForecast(sorted[i].month, prior, mode, today, decay)
+    if (fc > 0) {
+      errors.push((sorted[i].totalSpent - fc) / fc)
+    }
+  }
+
+  if (errors.length < 3) return null
+
+  const sortedErrors = [...errors].sort((a, b) => a - b)
+  const baseFc = computeForecast(targetMonth, history, mode, today, decay)
+  if (baseFc <= 0) return null
+
+  return {
+    low: Math.max(0, baseFc * (1 + quantile(sortedErrors, 0.1))),
+    high: baseFc * (1 + quantile(sortedErrors, 0.9)),
+  }
+}

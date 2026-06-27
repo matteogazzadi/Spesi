@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { computeForecast, computeCalibrationFactor, findOptimalDecay, getConfidence } from '../lib/forecast'
+import { computeForecast, computeCalibrationFactor, findOptimalDecay, getConfidence, computeForecastInterval } from '../lib/forecast'
 import type { BudgetingMode, ConfidenceLevel } from '../lib/forecast'
 import type { Database } from '../lib/database.types'
 
@@ -48,6 +48,8 @@ export interface MonthlyDataResult {
   projectedAnnual: number
   trendPct: number | null
   lastMonthSummary: LastMonthSummary | null
+  forecastLow: number | null
+  forecastHigh: number | null
   refetch: () => void
 }
 
@@ -108,6 +110,11 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   const calibration = computeCalibrationFactor(historicalEntries, budgetingMode, new Date(), decay)
   const forecast = computeForecast(currentMonth, historicalEntries, budgetingMode, new Date(), decay) * calibration
   const nextMonthForecast = computeForecast(nextMonth, historicalEntries, budgetingMode, new Date(), decay) * calibration
+
+  // Forecast confidence interval (p10 = optimistic, p90 = conservative), calibration-adjusted
+  const rawInterval = computeForecastInterval(currentMonth, historicalEntries, budgetingMode, new Date(), decay)
+  const forecastLow = rawInterval ? Math.round(rawInterval.low * calibration) : null
+  const forecastHigh = rawInterval ? Math.round(rawInterval.high * calibration) : null
 
   // Adjusted forecasts include the unplanned portion of planned expenses
   const adjustedForecast = forecast + extraForMonth(plannedExpenses, currentMonth)
@@ -173,6 +180,8 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     projectedAnnual,
     trendPct,
     lastMonthSummary,
+    forecastLow,
+    forecastHigh,
     refetch: fetchData,
   }
 }

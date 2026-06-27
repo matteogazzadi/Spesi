@@ -110,14 +110,24 @@ body {
 }
 
 /* ── History strip ───────────────────────────────────── */
+.history-strip-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.history-strip-scroll::-webkit-scrollbar { height: 4px; }
+.history-strip-scroll::-webkit-scrollbar-track { background: transparent; }
+.history-strip-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 .history-strip {
   display: flex;
   gap: 8px;
   align-items: flex-end;
   height: 140px;
   padding-top: 8px;
+  min-width: max-content;
 }
-.history-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; }
+.history-bar-wrap { flex-shrink: 0; width: 36px; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; }
 .history-bar-delta {
   font-size: .58rem;
   font-weight: 700;
@@ -438,7 +448,8 @@ body {
   transition: background .15s, color .15s;
 }
 .nav-link:hover { background: var(--border); color: var(--text); }
-.nav-link.active { background: var(--border); color: var(--text); font-weight: 600; }
+.nav-link.active { background: var(--accent); color: #fff; font-weight: 600; }
+.nav-link.active:hover { background: var(--accent-hover); color: #fff; }
 
 /* ── Page headers ────────────────────────────────────── */
 .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -.01em; }
@@ -655,6 +666,59 @@ body {
   letter-spacing: -.01em;
   position: relative;
 }
+
+/* ── Forecast range (confidence interval) ────────────── */
+.forecast-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .78rem;
+  color: rgba(255,255,255,.5);
+  position: relative;
+  margin-top: -4px;
+}
+.forecast-range-label { font-weight: 500; letter-spacing: .02em; }
+.forecast-range-low { color: #6EE7B7; font-weight: 600; font-variant-numeric: tabular-nums; }
+.forecast-range-sep { opacity: .6; }
+.forecast-range-high { color: #FCA5A5; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ── Medal badges (months page) ──────────────────────── */
+.medal-badge {
+  font-size: .95rem;
+  line-height: 1;
+  cursor: default;
+}
+.medal-congrats {
+  font-size: .75rem;
+  color: var(--accent);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── Language selector (settings) ────────────────────── */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media (max-width: 480px) { .lang-grid { grid-template-columns: repeat(2, 1fr); } }
+.lang-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-input);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.lang-option:hover { border-color: var(--accent); background: var(--bg-card); }
+.lang-option.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+.lang-code { font-size: .7rem; font-weight: 700; letter-spacing: .05em; opacity: .7; }
+.lang-option.active .lang-code { opacity: .85; }
+.lang-name { font-size: .85rem; font-weight: 500; }
 
 /* ── Add month grid (months page) ────────────────────── */
 .add-month-grid {
