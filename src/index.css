@@ -988,6 +988,167 @@ a.month-row-name:hover { text-decoration: underline; }
   flex: 1;
 }
 
+/* ── Planned extras card ─────────────────────────────── */
+.planned-card { }
+
+.planned-list {
+  margin-bottom: 20px;
+}
+.planned-month-group {
+  margin-bottom: 14px;
+}
+.planned-month-label {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.planned-month-extra {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(99,102,241,.08);
+  border: 1px solid rgba(99,102,241,.18);
+  border-radius: 10px;
+  padding: 1px 8px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.planned-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.planned-item:last-child { border-bottom: none; }
+.planned-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.planned-item-desc {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.planned-item-meta {
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+.planned-del {
+  flex-shrink: 0;
+  font-size: .85rem;
+  padding: 2px 8px;
+  line-height: 1.4;
+}
+
+/* Add form */
+.planned-form {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.planned-form-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+}
+@media (max-width: 560px) { .planned-form-row { grid-template-columns: 1fr; } }
+.planned-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: .9rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+}
+.planned-input:focus { border-color: var(--accent); }
+.planned-input-amount { width: 110px; }
+.planned-input-month { width: 150px; }
+@media (max-width: 560px) {
+  .planned-input-amount, .planned-input-month { width: 100%; }
+}
+
+.planned-pct-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.planned-pct-label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.planned-pct-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .82rem;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.planned-pct-option input[type="radio"] { accent-color: var(--accent); }
+.planned-pct-custom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .82rem;
+  color: var(--text);
+}
+.planned-pct-input {
+  width: 54px;
+  background: var(--bg-input);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  padding: 3px 7px;
+  font-size: .85rem;
+  color: var(--text);
+  outline: none;
+  text-align: right;
+}
+
+.planned-impact {
+  font-size: .82rem;
+  color: var(--text-muted);
+  background: rgba(99,102,241,.06);
+  border: 1px solid rgba(99,102,241,.15);
+  border-radius: 6px;
+  padding: 7px 12px;
+}
+.planned-impact strong { color: var(--accent); }
+
+.planned-submit {
+  width: auto;
+  align-self: flex-start;
+  padding: 9px 20px;
+  font-size: .875rem;
+}
+
+/* ── Hero extras line ────────────────────────────────── */
+.forecast-hero-extras {
+  font-size: .8rem;
+  color: rgba(255,255,255,.45);
+  margin-top: -8px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
 /* ── Last month card ─────────────────────────────────── */
 .last-month-card { }
 .last-month-row {
