@@ -21,7 +21,7 @@ interface Props {
 }
 
 export function CurrentMonthCard({ data }: Props) {
-  const { forecast, nextMonthForecast, currentMonth, nextMonth, confidence } = data
+  const { forecast, nextMonthForecast, currentMonth, nextMonth, confidence, trendPct } = data
   const conf = CONFIDENCE_CONFIG[confidence]
 
   return (
@@ -39,6 +39,11 @@ export function CurrentMonthCard({ data }: Props) {
       <div className="forecast-hero-confidence">
         <span className="confidence-dot" style={{ background: conf.color }} />
         {conf.label}
+        {trendPct !== null && (
+          <span className={`trend-badge ${trendPct > 0 ? 'trend-up' : 'trend-down'}`}>
+            {trendPct > 0 ? '↑' : '↓'} {Math.abs(trendPct).toFixed(0)}%
+          </span>
+        )}
       </div>
 
       {nextMonthForecast > 0 && (

@@ -43,6 +43,7 @@ export function MonthsPage() {
   const [selectedYear, setSelectedYear] = useState<string>('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editAmount, setEditAmount] = useState('')
+  const [editNote, setEditNote] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
 
   const fetchMonths = useCallback(async () => {
@@ -130,6 +131,7 @@ export function MonthsPage() {
   function startEdit(m: MonthWithStats) {
     setEditingId(m.id)
     setEditAmount(String(m.total_spent))
+    setEditNote(m.note ?? '')
   }
 
   async function saveEdit(m: MonthWithStats) {
@@ -138,7 +140,7 @@ export function MonthsPage() {
     setSavingEdit(true)
     const { error: err } = await supabase
       .from('monthly_totals')
-      .update({ total_spent: amount, last_imported_at: new Date().toISOString() })
+      .update({ total_spent: amount, note: editNote.trim() || null, last_imported_at: new Date().toISOString() })
       .eq('id', m.id)
       .eq('user_id', userId)
     setSavingEdit(false)
@@ -275,6 +277,23 @@ export function MonthsPage() {
                       }
                       {' · '}Updated {fmtDate(m.last_imported_at)}
                     </div>
+                    {isEditing ? (
+                      <input
+                        className="inline-edit month-note-edit"
+                        type="text"
+                        value={editNote}
+                        onChange={e => setEditNote(e.target.value)}
+                        placeholder="Add a note…"
+                        maxLength={200}
+                        style={{ marginTop: 6, width: '100%' }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') saveEdit(m)
+                          if (e.key === 'Escape') setEditingId(null)
+                        }}
+                      />
+                    ) : m.note ? (
+                      <div className="month-row-note">{m.note}</div>
+                    ) : null}
                   </div>
                   <div className="month-row-right">
                     {isEditing ? (

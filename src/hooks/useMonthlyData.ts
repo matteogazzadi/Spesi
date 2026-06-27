@@ -17,6 +17,12 @@ function nextYearMonth(current: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
+export interface LastMonthSummary {
+  month: string
+  actual: number
+  forecast: number
+}
+
 export interface MonthlyDataResult {
   loading: boolean
   error: string | null
@@ -30,6 +36,8 @@ export interface MonthlyDataResult {
   confidence: ConfidenceLevel
   yearToDate: number
   projectedAnnual: number
+  trendPct: number | null
+  lastMonthSummary: LastMonthSummary | null
   refetch: () => void
 }
 
@@ -101,6 +109,27 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   }
   const projectedAnnual = yearToDate + projectedRemaining
 
+  // Last completed month summary (actual vs what we would have forecast)
+  const sortedHistory = [...history].sort((a, b) => b.month.localeCompare(a.month))
+  const lastCompleted = sortedHistory.find(h => h.month < currentMonth) ?? null
+  let lastMonthSummary: LastMonthSummary | null = null
+  if (lastCompleted) {
+    const priorEntries = historicalEntries.filter(e => e.month < lastCompleted.month)
+    const lastForecast = priorEntries.length > 0
+      ? computeForecast(lastCompleted.month, priorEntries, budgetingMode) * computeCalibrationFactor(priorEntries, budgetingMode)
+      : 0
+    lastMonthSummary = { month: lastCompleted.month, actual: lastCompleted.total_spent, forecast: lastForecast }
+  }
+
+  // Trend: compare recent 3-month avg vs prior 3-month avg
+  const pastMonths = sortedHistory.filter(h => h.month < currentMonth).slice(0, 6)
+  let trendPct: number | null = null
+  if (pastMonths.length >= 4) {
+    const recent = pastMonths.slice(0, 3).reduce((s, h) => s + h.total_spent, 0) / 3
+    const prior = pastMonths.slice(3, 6).reduce((s, h) => s + h.total_spent, 0) / Math.min(pastMonths.length - 3, 3)
+    if (prior > 0) trendPct = ((recent - prior) / prior) * 100
+  }
+
   return {
     loading,
     error,
@@ -114,6 +143,8 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     confidence,
     yearToDate,
     projectedAnnual,
+    trendPct,
+    lastMonthSummary,
     refetch: fetchData,
   }
 }

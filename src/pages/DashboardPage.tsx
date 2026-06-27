@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/useAuth'
 import { useMonthlyData } from '../hooks/useMonthlyData'
 import { CurrentMonthCard } from '../components/CurrentMonthCard'
 import { AnnualProgressCard } from '../components/AnnualProgressCard'
+import { LastMonthCard } from '../components/LastMonthCard'
 import { HistoryStrip } from '../components/HistoryStrip'
 import { YearOverYearCard } from '../components/YearOverYearCard'
 
@@ -23,11 +24,13 @@ export function DashboardPage() {
       ) : (
         <>
           <CurrentMonthCard data={data} />
+          {data.lastMonthSummary && <LastMonthCard summary={data.lastMonthSummary} />}
           <AnnualProgressCard
             year={data.currentMonth.slice(0, 4)}
             yearToDate={data.yearToDate}
             projectedAnnual={data.projectedAnnual}
             annualTarget={data.annualTarget}
+            currentMonth={data.currentMonth}
           />
           <HistoryStrip
             history={data.history}

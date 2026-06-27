@@ -926,3 +926,94 @@ a.month-row-name:hover { text-decoration: underline; }
   text-align: center;
   flex: 1;
 }
+
+/* ── Last month card ─────────────────────────────────── */
+.last-month-card { }
+.last-month-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 480px) { .last-month-row { grid-template-columns: 1fr 1fr; } }
+.last-month-stat { display: flex; flex-direction: column; gap: 4px; }
+.last-month-label {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.last-month-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.last-month-pct {
+  font-size: .8rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* ── Trend badge (inside forecast hero) ──────────────── */
+.trend-badge {
+  display: inline-block;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+.trend-up { background: rgba(245,158,11,.18); color: #FCD34D; }
+.trend-down { background: rgba(96,165,250,.15); color: #93C5FD; }
+
+/* ── Budget runway ───────────────────────────────────── */
+.budget-runway {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.budget-runway-label {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-muted);
+}
+.budget-runway-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.budget-runway-sub {
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+
+/* ── Month note ──────────────────────────────────────── */
+.month-row-note {
+  font-size: .75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.month-note-edit {
+  font-size: .82rem;
+}
+
+/* ── Print ───────────────────────────────────────────── */
+@media print {
+  .app-header, .row-actions, .add-month-grid, .btn-action, .btn-ghost,
+  .btn-theme-toggle, .upload-zone, .year-tabs { display: none !important; }
+  body { background: #fff; color: #000; font-size: 12px; }
+  .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  .forecast-hero { background: #1E1B4B !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .app-main { padding: 0; max-width: 100%; }
+}
