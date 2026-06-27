@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeForecast, computeCalibrationFactor, computeAllocation } from '../lib/forecast'
+import { computeForecast, computeCalibrationFactor, computeAllocation, findOptimalDecay } from '../lib/forecast'
 import type { HistoricalEntry } from '../lib/forecast'
 
 const today = new Date('2025-07-01')
@@ -92,6 +92,41 @@ describe('computeCalibrationFactor', () => {
     }))
     const factor = computeCalibrationFactor(flat, 'all_time', today)
     expect(factor).toBeCloseTo(1.0, 1)
+  })
+})
+
+describe('findOptimalDecay', () => {
+  it('returns DEFAULT_DECAY (0.88) with fewer than 6 entries', () => {
+    expect(findOptimalDecay(history.slice(0, 5), 'all_time', today)).toBe(0.88)
+  })
+
+  it('returns a decay in the candidate range [0.50, 0.98]', () => {
+    const decay = findOptimalDecay(history, 'all_time', today)
+    expect(decay).toBeGreaterThanOrEqual(0.50)
+    expect(decay).toBeLessThanOrEqual(0.98)
+  })
+
+  it('returns a decay value from the fixed candidate set', () => {
+    const candidates = [0.50, 0.60, 0.70, 0.80, 0.85, 0.88, 0.90, 0.92, 0.95, 0.98]
+    const decay = findOptimalDecay(history, 'all_time', today)
+    expect(candidates).toContain(decay)
+  })
+
+  it('prefers lower decay for clearly trending data (more weight on recent)', () => {
+    // Monotonically increasing data — recent values matter more
+    const trending: HistoricalEntry[] = [
+      { month: '2023-01', totalSpent: 1000 },
+      { month: '2023-02', totalSpent: 1100 },
+      { month: '2023-03', totalSpent: 1200 },
+      { month: '2023-04', totalSpent: 1300 },
+      { month: '2023-05', totalSpent: 1400 },
+      { month: '2023-06', totalSpent: 1500 },
+      { month: '2023-07', totalSpent: 1600 },
+      { month: '2023-08', totalSpent: 1700 },
+    ]
+    const decay = findOptimalDecay(trending, 'all_time', today)
+    // Strong trend: low decay tracks recent values better
+    expect(decay).toBeLessThan(0.95)
   })
 })
 

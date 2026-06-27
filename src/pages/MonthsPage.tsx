@@ -244,8 +244,10 @@ export function MonthsPage() {
             ))}
           </div>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: years.length > 1 ? 16 : 0, marginBottom: 16 }}>
-          <div className="card-title" style={{ marginBottom: 0 }}>{selectedYear || 'History'}</div>
+        <div className="months-header">
+          <div className="card-title" style={{ marginBottom: 0 }}>
+            {selectedYear ? `${selectedYear} spending` : 'History'}
+          </div>
           {months.length > 0 && (
             <button className="btn-action" onClick={exportCSV} title="Export all data as CSV">
               Export CSV
