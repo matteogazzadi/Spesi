@@ -36,7 +36,7 @@ export function AppLayout({ children }: Props) {
   return (
     <>
       <header className="app-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div className="app-header-left">
           <span className="app-logo">Spesi</span>
           <nav className="app-nav">
             <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Dashboard</NavLink>
