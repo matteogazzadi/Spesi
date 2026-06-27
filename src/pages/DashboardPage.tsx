@@ -25,6 +25,7 @@ export function DashboardPage() {
       ) : (
         <>
           <CurrentMonthCard data={data} />
+          {data.lastMonthSummary && <LastMonthCard summary={data.lastMonthSummary} />}
           <PlannedExpensesCard
             userId={userId}
             expenses={data.plannedExpenses}
@@ -32,7 +33,6 @@ export function DashboardPage() {
             nextMonth={data.nextMonth}
             onRefetch={data.refetch}
           />
-          {data.lastMonthSummary && <LastMonthCard summary={data.lastMonthSummary} />}
           <AnnualProgressCard
             year={data.currentMonth.slice(0, 4)}
             yearToDate={data.yearToDate}
