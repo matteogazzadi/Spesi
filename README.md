@@ -1,0 +1,2 @@
+# Spesi
+Personal budgeting app
