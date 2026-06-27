@@ -1,0 +1,12 @@
+{
+  "name": "Spesi",
+  "short_name": "Spesi",
+  "description": "Personal spending tracker with intelligent forecasting",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F1F5F9",
+  "theme_color": "#6366F1",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "productivity"],
+  "icons": []
+}

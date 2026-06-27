@@ -9,6 +9,7 @@ export type Database = {
           total_spent: number
           last_imported_at: string
           created_at: string
+          note: string | null
         }
         Insert: {
           id?: string
@@ -17,6 +18,7 @@ export type Database = {
           total_spent?: number
           last_imported_at?: string
           created_at?: string
+          note?: string | null
         }
         Update: {
           id?: string
@@ -25,6 +27,7 @@ export type Database = {
           total_spent?: number
           last_imported_at?: string
           created_at?: string
+          note?: string | null
         }
         Relationships: [
           {

@@ -6,9 +6,10 @@ interface Props {
   yearToDate: number
   projectedAnnual: number
   annualTarget: number | null
+  currentMonth: string
 }
 
-export function AnnualProgressCard({ year, yearToDate, projectedAnnual, annualTarget }: Props) {
+export function AnnualProgressCard({ year, yearToDate, projectedAnnual, annualTarget, currentMonth }: Props) {
   if (!annualTarget && yearToDate === 0 && projectedAnnual === 0) return null
 
   const target = annualTarget ?? projectedAnnual
@@ -16,6 +17,13 @@ export function AnnualProgressCard({ year, yearToDate, projectedAnnual, annualTa
   const projectedPct = target > 0 ? Math.min((projectedAnnual / target) * 100, 100) : 0
   const isOver = annualTarget != null && projectedAnnual > annualTarget
   const delta = annualTarget != null ? projectedAnnual - annualTarget : 0
+
+  const currentMonthNum = Number(currentMonth.slice(5, 7))
+  const monthsRemaining = 13 - currentMonthNum
+  const budgetRemaining = annualTarget != null ? Math.max(0, annualTarget - yearToDate) : null
+  const monthlyAllowance = budgetRemaining != null && monthsRemaining > 0
+    ? budgetRemaining / monthsRemaining
+    : null
 
   return (
     <div className="card annual-card">
@@ -70,6 +78,14 @@ export function AnnualProgressCard({ year, yearToDate, projectedAnnual, annualTa
             <span><span className="legend-dot" style={{ background: 'var(--accent)' }} />Spent ({pct.toFixed(0)}%)</span>
             <span><span className="legend-dot" style={{ background: 'var(--border)', border: '1.5px dashed var(--text-muted)' }} />Projected</span>
           </div>
+        </div>
+      )}
+
+      {monthlyAllowance != null && monthsRemaining > 1 && (
+        <div className="budget-runway">
+          <span className="budget-runway-label">Monthly allowance</span>
+          <span className="budget-runway-value num">{fmt(monthlyAllowance)}</span>
+          <span className="budget-runway-sub">for {monthsRemaining} remaining months</span>
         </div>
       )}
     </div>
