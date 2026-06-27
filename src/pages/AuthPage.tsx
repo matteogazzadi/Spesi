@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/useAuth'
 
@@ -47,6 +47,7 @@ export function AuthPage() {
   const [totpSecret, setTotpSecret] = useState('')
   const [factorId, setFactorId] = useState('')
   const [secretCopied, setSecretCopied] = useState(false)
+  const enrollingRef = useRef(false)
   const [verifyFactorId, setVerifyFactorId] = useState('')
   const [challengeId, setChallengeId] = useState('')
 
@@ -70,17 +71,33 @@ export function AuthPage() {
   }
 
   async function startMfaEnroll() {
+    if (enrollingRef.current) return
+    enrollingRef.current = true
     setError(''); setLoading(true)
 
-    // Clean up any leftover unverified factors from previous abandoned enrollments
-    const { data: existing } = await supabase.auth.mfa.listFactors()
-    const unverified = existing?.totp?.filter((f) => f.status !== 'verified') ?? []
-    await Promise.all(unverified.map((f) => supabase.auth.mfa.unenroll({ factorId: f.id })))
+    const cleanupUnverified = async () => {
+      const { data: existing } = await supabase.auth.mfa.listFactors()
+      const unverified = existing?.totp?.filter((f) => f.status !== 'verified') ?? []
+      await Promise.all(unverified.map((f) => supabase.auth.mfa.unenroll({ factorId: f.id })))
+    }
 
-    const { data, error: err } = await supabase.auth.mfa.enroll({
+    await cleanupUnverified()
+
+    let { data, error: err } = await supabase.auth.mfa.enroll({
       factorType: 'totp',
       issuer: 'Spesi',
     })
+
+    // If a duplicate slipped through (race), clean up all TOTP factors and retry once
+    if (err?.message?.includes('already exists')) {
+      await cleanupUnverified()
+      ;({ data, error: err } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        issuer: 'Spesi',
+      }))
+    }
+
+    enrollingRef.current = false
     setLoading(false)
     if (err || !data) { setError(err?.message ?? 'Enroll failed'); return }
     setFactorId(data.id)
@@ -126,8 +143,10 @@ export function AuthPage() {
     await refreshAuthLevel()
   }
 
-  if (authLevel === 'aal1_no_mfa' && mode === 'login') startMfaEnroll()
-  if (authLevel === 'aal1_need_verify' && mode === 'login') startMfaVerify()
+  useEffect(() => {
+    if (authLevel === 'aal1_no_mfa' && mode === 'login') startMfaEnroll()
+    else if (authLevel === 'aal1_need_verify' && mode === 'login') startMfaVerify()
+  }, [authLevel]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="auth-wrap">
