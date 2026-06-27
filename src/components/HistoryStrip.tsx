@@ -53,6 +53,7 @@ export function HistoryStrip({ history, budgetingMode, currentMonth }: Props) {
   return (
     <div className="card">
       <div className="card-title">Forecast vs actual</div>
+      <div className="history-strip-scroll">
       <div className="history-strip">
         {barsData.map((b) => {
           const actualPct = (b.actual / maxVal) * 100
@@ -92,6 +93,7 @@ export function HistoryStrip({ history, budgetingMode, currentMonth }: Props) {
           )
         })}
       </div>
+      </div>{/* end history-strip-scroll */}
       <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: '.72rem', color: 'var(--text-muted)' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ width: 10, height: 10, background: 'var(--under)', borderRadius: 2, display: 'inline-block', opacity: .8 }} />

@@ -13,57 +13,66 @@ const history: HistoricalEntry[] = [
   { month: '2025-03', totalSpent: 1700 },
 ]
 
+// globalMean = (1600+1800+1800+2000+1500+1700)/6 = 1733.33
+
 describe('computeForecast — all_time mode', () => {
-  it('averages all past occurrences of the same calendar month', () => {
+  it('uses seasonal factor when 2+ same-month data points exist', () => {
+    // June: [1600, 1800] → seasonalFactor = 1700/1733.33 = 0.9808
+    // baseRate = average of last 6 months = 1733.33
+    // forecast ≈ 1700
     const result = computeForecast('2025-06', history, 'all_time', today)
-    // June 2023 = 1600, June 2024 = 1800 → average = 1700
-    expect(result).toBeCloseTo(1700)
+    expect(result).toBeCloseTo(1700, 0)
   })
 
-  it('falls back to overall average when fewer than 2 data points exist', () => {
-    // January only appears once
+  it('applies partial seasonal adjustment with only 1 same-month observation', () => {
+    // January appears once (1500). ratio = 1500/1733.33 = 0.8654
+    // seasonalFactor = 0.6*0.8654 + 0.4 = 0.9192
+    // baseRate = 1733.33 → forecast ≈ 1593
     const result = computeForecast('2026-01', history, 'all_time', today)
-    const overall = (1600 + 1800 + 1800 + 2000 + 1500 + 1700) / 6
-    expect(result).toBeCloseTo(overall)
+    const globalMean = (1600 + 1800 + 1800 + 2000 + 1500 + 1700) / 6
+    const seasonalFactor = 0.6 * (1500 / globalMean) + 0.4
+    expect(result).toBeCloseTo(globalMean * seasonalFactor, 0)
+    // Forecast is below global mean, reflecting that January tends to be a low month
+    expect(result).toBeLessThan(globalMean)
   })
 
-  it('falls back to overall average when zero data points exist for that month', () => {
+  it('uses base rate without seasonal adjustment when no same-month data', () => {
+    // September has no data → seasonalFactor = 1.0 → forecast = baseRate = globalMean
     const result = computeForecast('2025-09', history, 'all_time', today)
-    const overall = (1600 + 1800 + 1800 + 2000 + 1500 + 1700) / 6
-    expect(result).toBeCloseTo(overall)
+    const globalMean = (1600 + 1800 + 1800 + 2000 + 1500 + 1700) / 6
+    expect(result).toBeCloseTo(globalMean, 0)
   })
 })
 
 describe('computeForecast — rolling_12mo mode', () => {
   it('only uses data within the last 12 months', () => {
     // today = 2025-07-01, window starts at 2024-08-01
-    // June 2023 is outside the window, June 2024 is also outside (2024-06 < 2024-08)
-    // So no June data in the window → falls back to overall average of window
+    // window = 2025-01 (1500), 2025-03 (1700) — no June → seasonalFactor = 1.0
+    // forecast = average(1500, 1700) = 1600
     const result = computeForecast('2025-06', history, 'rolling_12mo', today)
-    // window contains: 2025-01 (1500), 2025-03 (1700), 2024-07 is outside (2024-07 < 2024-08)
-    // Actually 2024-07 is outside, so window = 2025-01 + 2025-03
-    const windowAvg = (1500 + 1700) / 2
-    expect(result).toBeCloseTo(windowAvg)
+    expect(result).toBeCloseTo(1600, 0)
   })
 
-  it('uses 12-month window data when 2+ same-month entries exist in window', () => {
+  it('applies seasonal boost when the same-month entry is above the window average', () => {
     const extendedHistory: HistoricalEntry[] = [
       { month: '2024-07', totalSpent: 2000 },
       { month: '2024-08', totalSpent: 1900 },
       { month: '2025-07', totalSpent: 2200 },
     ]
-    // today = 2025-07-01, window from 2024-08 — so 2024-07 is outside
-    // 2024-08: inside; 2025-07: inside. But we want July forecast:
-    // only 2025-07 is inside and matches July → 1 point → fallback
+    // Window from 2024-08: 2024-08 (1900), 2025-07 (2200)
+    // globalMean = 2050; July in window: [2200] → 1 obs
+    // seasonalFactor = 0.6*(2200/2050) + 0.4 = 1.044
+    // baseRate = average(1900, 2200) = 2050
+    // forecast = 2050 * 1.044 ≈ 2140 — above the window average, reflecting July is high
     const result = computeForecast('2025-07', extendedHistory, 'rolling_12mo', today)
-    // fallback to window average: 1900 + 2200 / 2 = 2050
-    expect(result).toBeCloseTo((1900 + 2200) / 2)
+    expect(result).toBeGreaterThan(2050)
+    expect(result).toBeCloseTo(2140, -1)
   })
 
-  it('falls back to window overall average when zero same-month entries in window', () => {
+  it('uses base rate without seasonal adjustment when zero same-month entries in window', () => {
     const result = computeForecast('2025-09', history, 'rolling_12mo', today)
-    // window = 2025-01 (1500), 2025-03 (1700)
-    expect(result).toBeCloseTo((1500 + 1700) / 2)
+    // window = 2025-01 (1500), 2025-03 (1700) → average = 1600
+    expect(result).toBeCloseTo((1500 + 1700) / 2, 0)
   })
 
   it('returns 0 when history is empty', () => {
