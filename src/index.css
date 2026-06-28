@@ -1294,6 +1294,197 @@ a.month-row-name:hover { text-decoration: underline; }
   font-size: .82rem;
 }
 
+/* ── Life shifts ─────────────────────────────────────── */
+.life-shifts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.life-shift-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.life-shift-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.life-shift-desc {
+  font-weight: 500;
+  font-size: .9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.life-shift-range {
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+.life-shift-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.life-shift-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-top: 8px;
+}
+.life-shift-form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.life-shift-form-row .form-group {
+  flex: 1;
+  min-width: 120px;
+  margin-bottom: 0;
+}
+
+/* ── Outlier suggestion banner ────────────────────────── */
+.suggest-banner {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--over);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+.suggest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: .9rem;
+}
+.suggest-dismiss {
+  font-size: .78rem;
+  padding: 2px 8px;
+}
+.suggest-desc {
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.suggest-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .85rem;
+}
+.suggest-desc-text {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.suggest-amount {
+  font-weight: 600;
+  color: var(--over);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.suggest-exclude-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 3px 10px;
+  font-size: .78rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.suggest-exclude-btn:hover { background: var(--accent-hover); }
+
+/* ── CSV mapper modal ─────────────────────────────────── */
+.csvmap-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+.csvmap-modal {
+  background: var(--bg-card);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: var(--shadow-md);
+  padding: 28px 28px 24px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.csvmap-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.csvmap-desc {
+  font-size: .875rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+.csvmap-section-label {
+  font-size: .78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.csvmap-preview-wrap {
+  overflow-x: auto;
+  margin-bottom: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.csvmap-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8rem;
+}
+.csvmap-preview-table th,
+.csvmap-preview-table td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.csvmap-preview-table th {
+  background: var(--bg);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.csvmap-preview-table tr:last-child td { border-bottom: none; }
+.csvmap-controls { display: flex; flex-direction: column; gap: 14px; }
+.csvmap-selects { display: flex; gap: 14px; flex-wrap: wrap; }
+.csvmap-selects .form-group { flex: 1; min-width: 140px; margin-bottom: 0; }
+.csvmap-sign-options { display: flex; flex-direction: column; gap: 4px; }
+
 /* ── Print ───────────────────────────────────────────── */
 @media print {
   .app-header, .row-actions, .add-month-grid, .btn-action, .btn-ghost,

@@ -6,6 +6,7 @@ import type { Database } from '../lib/database.types'
 
 type MonthlyTotalRow = Database['public']['Tables']['monthly_totals']['Row']
 export type PlannedExpense = Database['public']['Tables']['planned_expenses']['Row']
+export type BaselineAdjustment = Database['public']['Tables']['baseline_adjustments']['Row']
 
 function currentYearMonth(): string {
   const d = new Date()
@@ -24,6 +25,12 @@ function extraForMonth(expenses: PlannedExpense[], month: string): number {
     .reduce((sum, e) => sum + e.amount * (e.unplanned_pct / 100), 0)
 }
 
+function baselineOffset(adjustments: BaselineAdjustment[], month: string): number {
+  return adjustments
+    .filter(a => a.start_month <= month && (a.end_month === null || a.end_month >= month))
+    .reduce((sum, a) => sum + a.amount, 0)
+}
+
 export interface LastMonthSummary {
   month: string
   actual: number
@@ -35,6 +42,7 @@ export interface MonthlyDataResult {
   error: string | null
   history: MonthlyTotalRow[]
   plannedExpenses: PlannedExpense[]
+  baselineAdjustments: BaselineAdjustment[]
   budgetingMode: BudgetingMode
   annualTarget: number | null
   currentMonth: string
@@ -58,6 +66,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   const [error, setError] = useState<string | null>(null)
   const [history, setHistory] = useState<MonthlyTotalRow[]>([])
   const [plannedExpenses, setPlannedExpenses] = useState<PlannedExpense[]>([])
+  const [baselineAdjustments, setBaselineAdjustments] = useState<BaselineAdjustment[]>([])
   const [budgetingMode, setBudgetingMode] = useState<BudgetingMode>('all_time')
   const [annualTarget, setAnnualTarget] = useState<number | null>(null)
 
@@ -65,7 +74,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     setLoading(true)
     setError(null)
     try {
-      const [totalsRes, settingsRes, plannedRes] = await Promise.all([
+      const [totalsRes, settingsRes, plannedRes, adjustmentsRes] = await Promise.all([
         supabase
           .from('monthly_totals')
           .select('*')
@@ -81,6 +90,11 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
           .select('*')
           .eq('user_id', userId)
           .order('month', { ascending: true }),
+        supabase
+          .from('baseline_adjustments')
+          .select('*')
+          .eq('user_id', userId)
+          .order('start_month', { ascending: true }),
       ])
 
       if (totalsRes.error) throw new Error(totalsRes.error.message)
@@ -88,6 +102,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
       setBudgetingMode(settingsRes.data?.budgeting_mode ?? 'all_time')
       setAnnualTarget(settingsRes.data?.annual_target ?? null)
       setPlannedExpenses(plannedRes.data ?? [])
+      setBaselineAdjustments(adjustmentsRes.data ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
     } finally {
@@ -116,9 +131,13 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   const forecastLow = rawInterval ? Math.round(rawInterval.low * calibration) : null
   const forecastHigh = rawInterval ? Math.round(rawInterval.high * calibration) : null
 
-  // Adjusted forecasts include the unplanned portion of planned expenses
-  const adjustedForecast = forecast + extraForMonth(plannedExpenses, currentMonth)
-  const nextMonthAdjustedForecast = nextMonthForecast + extraForMonth(plannedExpenses, nextMonth)
+  // Apply life-shift baseline offsets
+  const currentOffset = baselineOffset(baselineAdjustments, currentMonth)
+  const nextOffset = baselineOffset(baselineAdjustments, nextMonth)
+
+  // Adjusted forecasts include baseline offsets + unplanned portion of planned expenses
+  const adjustedForecast = forecast + currentOffset + extraForMonth(plannedExpenses, currentMonth)
+  const nextMonthAdjustedForecast = nextMonthForecast + nextOffset + extraForMonth(plannedExpenses, nextMonth)
 
   const targetCalMonth = currentMonth.slice(5, 7)
   const sameMonthCount = historicalEntries.filter(
@@ -136,7 +155,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
   for (let m = currentMonthNum; m <= 12; m++) {
     const month = `${currentYear}-${String(m).padStart(2, '0')}`
     const baseFc = computeForecast(month, historicalEntries, budgetingMode, new Date(), decay) * calibration
-    projectedRemaining += baseFc + extraForMonth(plannedExpenses, month)
+    projectedRemaining += baseFc + baselineOffset(baselineAdjustments, month) + extraForMonth(plannedExpenses, month)
   }
   const projectedAnnual = yearToDate + projectedRemaining
 
@@ -167,6 +186,7 @@ export function useMonthlyData(userId: string): MonthlyDataResult {
     error,
     history,
     plannedExpenses,
+    baselineAdjustments,
     budgetingMode,
     annualTarget,
     currentMonth,
