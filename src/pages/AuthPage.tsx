@@ -1,37 +1,149 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/useAuth'
+import { useTranslation } from '../contexts/LanguageContext'
+import { LANGUAGES, type LangCode } from '../lib/translations'
 
 type Mode = 'login' | 'signup' | 'mfa_enroll' | 'mfa_verify'
 
-const FEATURES = [
-  {
-    title: 'Adaptive Forecast',
-    desc: 'EWMA model tuned automatically to your spending pattern via leave-one-out cross-validation — stable or volatile, it adapts.',
-  },
-  {
-    title: 'Confidence Interval',
-    desc: 'Optimistic and conservative bounds derived from your historical forecast errors, so you always know the likely range.',
-  },
-  {
-    title: 'Planned Extras',
-    desc: 'Add upcoming one-off expenses and choose how much counts as extra budget — the forecast adjusts automatically.',
-  },
-  {
-    title: 'History & Year-over-Year',
-    desc: '12-month bar chart and multi-year line chart let you spot trends, seasonal patterns, and your best months at a glance.',
-  },
-  {
-    title: 'Secure & Multilingual',
-    desc: 'TOTP two-factor auth, Postgres Row-Level Security, and 6 interface languages (auto-detected from your browser).',
-  },
-]
+// Illustrative chart data — shows a sample spending history + forecast
+const CHART_N = 10
+const CHART_ACTUALS:  (number | null)[] = [1650, 1820, 1540, 1900, 1730, 2280, 1590, 1720, 1760, null]
+const CHART_FORECASTS: number[]         = [1700, 1750, 1780, 1810, 1750, 1720, 1780, 1800, 1760, 1740]
+
+function AuthChart({ locale }: { locale: string }) {
+  const W = 400, H = 110
+  const PAD_L = 4, PAD_R = 4, PAD_T = 8, PAD_BOT = 22
+  const chartH = H - PAD_T - PAD_BOT
+  const chartW = W - PAD_L - PAD_R
+  const slotW = chartW / CHART_N
+  const barW = Math.floor(slotW * 0.55)
+  const barOffset = (slotW - barW) / 2
+
+  const monthLetters = Array.from({ length: CHART_N }, (_, i) =>
+    new Date(2024, i, 1).toLocaleString(locale, { month: 'narrow' })
+  )
+
+  const allVals = [...CHART_ACTUALS.filter(Boolean) as number[], ...CHART_FORECASTS]
+  const maxVal = Math.max(...allVals) * 1.06
+
+  const xCenter = (i: number) => PAD_L + i * slotW + slotW / 2
+  const xBar    = (i: number) => PAD_L + i * slotW + barOffset
+  const yVal    = (v: number) => PAD_T + chartH - (v / maxVal) * chartH
+  const hVal    = (v: number) => (v / maxVal) * chartH
+
+  // Confidence band polygon
+  const p90 = CHART_FORECASTS.map(v => v * 1.19)
+  const p10 = CHART_FORECASTS.map(v => v * 0.84)
+  const topPts = CHART_FORECASTS.map((_, i) => `${xCenter(i).toFixed(1)},${yVal(p90[i]).toFixed(1)}`).join(' ')
+  const botPts = [...CHART_FORECASTS.keys()].reverse().map(i => `${xCenter(i).toFixed(1)},${yVal(p10[i]).toFixed(1)}`).join(' ')
+  const bandPath = `M${topPts} L${botPts} Z`
+
+  // Forecast polyline
+  const fLine = CHART_FORECASTS
+    .map((v, i) => `${i === 0 ? 'M' : 'L'}${xCenter(i).toFixed(1)},${yVal(v).toFixed(1)}`)
+    .join(' ')
+
+  return (
+    <div className="auth-chart-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} className="auth-chart-svg" preserveAspectRatio="xMidYMid meet">
+        {/* Confidence band */}
+        <path d={bandPath} fill="rgba(255,255,255,0.06)" />
+
+        {/* Bars */}
+        {CHART_ACTUALS.map((a, i) => {
+          const fc = CHART_FORECASTS[i]
+          if (a === null) {
+            return (
+              <rect
+                key={i}
+                x={xBar(i).toFixed(1)}
+                y={yVal(fc).toFixed(1)}
+                width={barW}
+                height={hVal(fc).toFixed(1)}
+                fill="rgba(255,255,255,0.1)"
+                rx="1.5"
+              />
+            )
+          }
+          const isOver = a > fc
+          return (
+            <rect
+              key={i}
+              x={xBar(i).toFixed(1)}
+              y={yVal(a).toFixed(1)}
+              width={barW}
+              height={hVal(a).toFixed(1)}
+              fill={isOver ? 'rgba(251,146,60,0.72)' : 'rgba(99,102,241,0.72)'}
+              rx="1.5"
+            />
+          )
+        })}
+
+        {/* Forecast dashed line */}
+        <path
+          d={fLine}
+          fill="none"
+          stroke="rgba(255,255,255,0.5)"
+          strokeWidth="1.5"
+          strokeDasharray="4 3"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+
+        {/* Forecast dots */}
+        {CHART_FORECASTS.map((v, i) => (
+          <circle key={i} cx={xCenter(i).toFixed(1)} cy={yVal(v).toFixed(1)} r="2.2" fill="rgba(255,255,255,0.65)" />
+        ))}
+
+        {/* "→" above current month bar */}
+        <text
+          x={xCenter(CHART_N - 1).toFixed(1)}
+          y={(PAD_T - 1).toFixed(1)}
+          textAnchor="middle"
+          fontSize="8"
+          fill="rgba(255,255,255,0.45)"
+        >→</text>
+
+        {/* Month labels */}
+        {monthLetters.map((m, i) => (
+          <text
+            key={i}
+            x={xCenter(i).toFixed(1)}
+            y={H - 5}
+            textAnchor="middle"
+            fontSize="8.5"
+            fill="rgba(255,255,255,0.35)"
+          >{m}</text>
+        ))}
+      </svg>
+
+      <div className="auth-chart-legend">
+        <span className="auth-chart-dot" style={{ background: 'rgba(99,102,241,.72)' }} />
+        <span className="auth-chart-legend-label">under</span>
+        <span className="auth-chart-dot" style={{ background: 'rgba(251,146,60,.72)' }} />
+        <span className="auth-chart-legend-label">over</span>
+        <span className="auth-chart-dash" />
+        <span className="auth-chart-legend-label">forecast</span>
+      </div>
+    </div>
+  )
+}
+
+function GlobeIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  )
+}
 
 export function AuthPage() {
   const { authLevel, refreshAuthLevel } = useAuth()
-  // Always start at 'login' when 2FA is pending so the useEffect below
-  // can call startMfaVerify and populate verifyFactorId/challengeId before
-  // the form is shown — avoids "factor_id must be an UUID" on submit.
+  const { t, lang, locale, setLang } = useTranslation()
+
   const initialMode: Mode = authLevel === 'aal1_no_mfa' ? 'mfa_enroll' : 'login'
 
   const [mode, setMode] = useState<Mode>(initialMode)
@@ -49,6 +161,7 @@ export function AuthPage() {
   const enrollingRef = useRef(false)
   const [verifyFactorId, setVerifyFactorId] = useState('')
   const [challengeId, setChallengeId] = useState('')
+  const [showLangMenu, setShowLangMenu] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -87,7 +200,6 @@ export function AuthPage() {
       issuer: 'Spesi',
     })
 
-    // If a duplicate slipped through (race), clean up all TOTP factors and retry once
     if (err?.message?.includes('already exists')) {
       await cleanupUnverified()
       ;({ data, error: err } = await supabase.auth.mfa.enroll({
@@ -147,18 +259,27 @@ export function AuthPage() {
     else if (authLevel === 'aal1_need_verify' && mode === 'login') startMfaVerify()
   }, [authLevel]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const features = [
+    { title: t('auth.f1.title'), desc: t('auth.f1.desc') },
+    { title: t('auth.f2.title'), desc: t('auth.f2.desc') },
+    { title: t('auth.f3.title'), desc: t('auth.f3.desc') },
+    { title: t('auth.f4.title'), desc: t('auth.f4.desc') },
+    { title: t('auth.f5.title'), desc: t('auth.f5.desc') },
+  ]
+
   return (
-    <div className="auth-wrap">
+    <div className="auth-wrap" onClick={() => setShowLangMenu(false)}>
+      {/* ── Left hero ── */}
       <div className="auth-hero">
         <div className="auth-hero-inner">
           <div className="auth-hero-logo">Spesi</div>
-          <div className="auth-hero-tagline">Smart budget forecasting.</div>
-          <p className="auth-hero-sub">
-            Add your monthly totals, get an adaptive forecast for this month and next.
-            The more history you add, the sharper the prediction.
-          </p>
+          <div className="auth-hero-tagline">{t('auth.tagline')}</div>
+          <p className="auth-hero-sub">{t('auth.sub')}</p>
+
+          <AuthChart locale={locale} />
+
           <div className="auth-features-wrap">
-            {FEATURES.map((f, i) => (
+            {features.map((f, i) => (
               <div
                 key={i}
                 className="auth-feature"
@@ -173,38 +294,65 @@ export function AuthPage() {
             ))}
           </div>
           <div className="auth-hero-dots">
-            {FEATURES.map((_, i) => (
+            {features.map((_, i) => (
               <div key={i} className="auth-dot" style={{ animationDelay: `${i * 4}s` }} />
             ))}
           </div>
         </div>
       </div>
 
+      {/* ── Right form panel ── */}
       <div className="auth-panel">
+        {/* Globe language picker */}
+        <div className="auth-lang-wrap" onClick={e => e.stopPropagation()}>
+          <button
+            className="auth-lang-btn"
+            onClick={() => setShowLangMenu(p => !p)}
+            aria-label="Change language"
+          >
+            <GlobeIcon />
+            <span>{lang.toUpperCase()}</span>
+          </button>
+          {showLangMenu && (
+            <div className="auth-lang-menu">
+              {(Object.entries(LANGUAGES) as [LangCode, string][]).map(([code, name]) => (
+                <button
+                  key={code}
+                  className={`auth-lang-option${lang === code ? ' active' : ''}`}
+                  onClick={() => { setLang(code); setShowLangMenu(false) }}
+                >
+                  <span className="auth-lang-code">{code.toUpperCase()}</span>
+                  <span className="auth-lang-name">{name}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="auth-card">
           {mode === 'login' && (
             <>
-              <h2>Welcome back</h2>
-              <p className="subtitle">Sign in to your Spesi account</p>
+              <h2>{t('auth.login.title')}</h2>
+              <p className="subtitle">{t('auth.login.sub')}</p>
               {error && <div className="msg msg-error">{error}</div>}
               {info && <div className="msg msg-info">{info}</div>}
               <form onSubmit={handleLogin}>
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>{t('auth.login.email')}</label>
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
                 </div>
                 <div className="form-group">
-                  <label>Password</label>
+                  <label>{t('auth.login.password')}</label>
                   <input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
                 </div>
                 <button className="btn btn-primary" type="submit" disabled={loading}>
-                  {loading ? 'Signing in…' : 'Sign in'}
+                  {loading ? t('auth.login.submitting') : t('auth.login.submit')}
                 </button>
               </form>
               <div className="auth-toggle">
-                No account?{' '}
+                {t('auth.login.no_account')}{' '}
                 <button className="btn-ghost" onClick={() => { setError(''); setMode('signup') }}>
-                  Create one
+                  {t('auth.login.create')}
                 </button>
               </div>
             </>
@@ -212,26 +360,26 @@ export function AuthPage() {
 
           {mode === 'signup' && (
             <>
-              <h2>Create account</h2>
-              <p className="subtitle">You'll set up two-factor authentication after signing in.</p>
+              <h2>{t('auth.signup.title')}</h2>
+              <p className="subtitle">{t('auth.signup.sub')}</p>
               {error && <div className="msg msg-error">{error}</div>}
               <form onSubmit={handleSignup}>
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>{t('auth.login.email')}</label>
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
                 </div>
                 <div className="form-group">
-                  <label>Password</label>
+                  <label>{t('auth.login.password')}</label>
                   <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
                 </div>
                 <button className="btn btn-primary" type="submit" disabled={loading}>
-                  {loading ? 'Creating…' : 'Create account'}
+                  {loading ? t('auth.signup.submitting') : t('auth.signup.submit')}
                 </button>
               </form>
               <div className="auth-toggle">
-                Already have an account?{' '}
+                {t('auth.signup.have_account')}{' '}
                 <button className="btn-ghost" onClick={() => { setError(''); setMode('login') }}>
-                  Sign in
+                  {t('auth.signup.signin')}
                 </button>
               </div>
             </>
@@ -239,8 +387,8 @@ export function AuthPage() {
 
           {mode === 'mfa_enroll' && (
             <>
-              <h2>Set up 2FA</h2>
-              <p className="subtitle">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.), then enter the 6-digit code below.</p>
+              <h2>{t('auth.mfa_enroll.title')}</h2>
+              <p className="subtitle">{t('auth.mfa_enroll.sub')}</p>
               {error && <div className="msg msg-error">{error}</div>}
               {qrCode ? (
                 <>
@@ -248,9 +396,7 @@ export function AuthPage() {
                     <img src={qrCode} alt="TOTP QR code" />
                   </div>
                   <div className="totp-secret-wrap">
-                    <p className="totp-secret-label">
-                      Can't scan? Copy this key into your authenticator app manually:
-                    </p>
+                    <p className="totp-secret-label">{t('auth.mfa_enroll.cant_scan')}</p>
                     <div className="totp-secret-row">
                       <code className="totp-secret">{totpSecret}</code>
                       <button
@@ -262,13 +408,13 @@ export function AuthPage() {
                           setTimeout(() => setSecretCopied(false), 2000)
                         }}
                       >
-                        {secretCopied ? 'Copied!' : 'Copy'}
+                        {secretCopied ? t('auth.mfa_enroll.copied') : t('auth.mfa_enroll.copy')}
                       </button>
                     </div>
                   </div>
                   <form onSubmit={handleEnrollVerify}>
                     <div className="form-group">
-                      <label>Authentication code</label>
+                      <label>{t('auth.mfa_enroll.code')}</label>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -282,13 +428,13 @@ export function AuthPage() {
                       />
                     </div>
                     <button className="btn btn-primary" type="submit" disabled={loading || totpCode.length !== 6}>
-                      {loading ? 'Verifying…' : 'Enable 2FA'}
+                      {loading ? t('common.loading') : t('auth.mfa_enroll.enable')}
                     </button>
                   </form>
                 </>
               ) : (
                 <button className="btn btn-primary" onClick={startMfaEnroll} disabled={loading}>
-                  {loading ? 'Loading…' : 'Generate QR code'}
+                  {loading ? t('common.loading') : t('auth.mfa_enroll.gen_qr')}
                 </button>
               )}
             </>
@@ -296,12 +442,12 @@ export function AuthPage() {
 
           {mode === 'mfa_verify' && (
             <>
-              <h2>Two-factor authentication</h2>
-              <p className="subtitle">Enter the 6-digit code from your authenticator app.</p>
+              <h2>{t('auth.mfa_verify.title')}</h2>
+              <p className="subtitle">{t('auth.mfa_verify.sub')}</p>
               {error && <div className="msg msg-error">{error}</div>}
               <form onSubmit={handleVerify}>
                 <div className="form-group">
-                  <label>Authentication code</label>
+                  <label>{t('auth.mfa_enroll.code')}</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -315,7 +461,7 @@ export function AuthPage() {
                   />
                 </div>
                 <button className="btn btn-primary" type="submit" disabled={loading || totpCode.length !== 6}>
-                  {loading ? 'Verifying…' : 'Verify'}
+                  {loading ? t('common.loading') : t('auth.mfa_verify.submit')}
                 </button>
               </form>
             </>
