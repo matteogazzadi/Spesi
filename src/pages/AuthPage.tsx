@@ -6,24 +6,24 @@ type Mode = 'login' | 'signup' | 'mfa_enroll' | 'mfa_verify'
 
 const FEATURES = [
   {
-    title: 'Monthly Spending Forecast',
-    desc: 'Predicts your month-end total from historical averages, so you know where you stand before the statement arrives.',
+    title: 'Adaptive Forecast',
+    desc: 'EWMA model tuned automatically to your spending pattern via leave-one-out cross-validation — stable or volatile, it adapts.',
   },
   {
-    title: 'Smart Exclusion Rules',
-    desc: 'Filter out recurring transfers and salary credits with contains or exact-match rules — only your real spend counts.',
+    title: 'Confidence Interval',
+    desc: 'Optimistic and conservative bounds derived from your historical forecast errors, so you always know the likely range.',
   },
   {
-    title: 'Historical Trend View',
-    desc: '12-month bar chart overlays actual spend against the forecast so over- and under-spending patterns are immediately visible.',
+    title: 'Planned Extras',
+    desc: 'Add upcoming one-off expenses and choose how much counts as extra budget — the forecast adjusts automatically.',
   },
   {
-    title: 'Budget Allocation',
-    desc: 'At a glance see exactly how much budget remains after accounting for spend so far and the projected monthly total.',
+    title: 'History & Year-over-Year',
+    desc: '12-month bar chart and multi-year line chart let you spot trends, seasonal patterns, and your best months at a glance.',
   },
   {
-    title: 'Secure by Default',
-    desc: 'Every account requires TOTP two-factor authentication. Your data is protected by Postgres Row-Level Security.',
+    title: 'Secure & Multilingual',
+    desc: 'TOTP two-factor auth, Postgres Row-Level Security, and 6 interface languages (auto-detected from your browser).',
   },
 ]
 
@@ -152,10 +152,10 @@ export function AuthPage() {
       <div className="auth-hero">
         <div className="auth-hero-inner">
           <div className="auth-hero-logo">Spesi</div>
-          <div className="auth-hero-tagline">Your budget forecasting site.</div>
+          <div className="auth-hero-tagline">Smart budget forecasting.</div>
           <p className="auth-hero-sub">
-            Import your Banca Sella exports, see where your money goes,
-            and stay ahead of next month's spending — automatically.
+            Add your monthly totals, get an adaptive forecast for this month and next.
+            The more history you add, the sharper the prediction.
           </p>
           <div className="auth-features-wrap">
             {FEATURES.map((f, i) => (
