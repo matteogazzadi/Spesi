@@ -1,4 +1,5 @@
 import type { Database } from '../lib/database.types'
+import { useTranslation } from '../contexts/LanguageContext'
 
 type MonthlyTotalRow = Database['public']['Tables']['monthly_totals']['Row']
 
@@ -6,25 +7,27 @@ interface Props {
   history: MonthlyTotalRow[]
 }
 
-const MONTH_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const LINE_COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6']
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
-
 export function YearOverYearCard({ history }: Props) {
-  const years = [...new Set(history.map(h => h.month.slice(0, 4)))].sort()
+  const { t, locale } = useTranslation()
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
 
+  // Generate locale-aware month abbreviations
+  const monthLabels = Array.from({ length: 12 }, (_, mi) =>
+    new Date(2000, mi, 1).toLocaleString(locale, { month: 'short' }).slice(0, 3)
+  )
+
+  const years = [...new Set(history.map(h => h.month.slice(0, 4)))].sort()
   if (years.length < 2) return null
 
-  // Only last 4 years for legibility
   const visibleYears = years.slice(-4)
 
-  // For each year, collect monthly values (null = no data)
   const seriesData = visibleYears.map((year, i) => ({
     year,
     color: LINE_COLORS[i % LINE_COLORS.length],
-    points: MONTH_LABELS.map((_, mi) => {
+    points: monthLabels.map((_, mi) => {
       const monthStr = `${year}-${String(mi + 1).padStart(2, '0')}`
       const entry = history.find(h => h.month === monthStr)
       return entry?.total_spent ?? null
@@ -36,7 +39,6 @@ export function YearOverYearCard({ history }: Props) {
 
   const maxVal = Math.max(...allValues)
 
-  // SVG layout
   const W = 560
   const H = 100
   const PAD_LEFT = 4
@@ -51,7 +53,6 @@ export function YearOverYearCard({ history }: Props) {
   function yPos(val: number) { return PAD_TOP + chartH - (val / maxVal) * chartH }
 
   function buildPolyline(points: (number | null)[]): string[] {
-    // Split into segments at null gaps, return each as a polyline points string
     const segments: string[] = []
     let current: string[] = []
     points.forEach((v, mi) => {
@@ -71,7 +72,7 @@ export function YearOverYearCard({ history }: Props) {
   return (
     <div className="card">
       <div className="yoy-header">
-        <div className="card-title" style={{ marginBottom: 0 }}>Year over year</div>
+        <div className="card-title" style={{ marginBottom: 0 }}>{t('yoy.title')}</div>
         <div className="yoy-legend">
           {seriesData.map(s => (
             <span key={s.year} className="yoy-legend-item">
@@ -114,7 +115,7 @@ export function YearOverYearCard({ history }: Props) {
                       fill={s.color}
                       opacity="0.9"
                     >
-                      <title>{`${s.year} ${MONTH_LABELS[mi]}: ${fmt(v)}`}</title>
+                      <title>{`${s.year} ${monthLabels[mi]}: ${fmt(v)}`}</title>
                     </circle>
                   ) : null
                 )}
@@ -124,7 +125,7 @@ export function YearOverYearCard({ history }: Props) {
         </svg>
 
         <div className="yoy-x-labels">
-          {MONTH_LABELS.map((label) => (
+          {monthLabels.map((label) => (
             <span key={label} className="yoy-x-label">{label}</span>
           ))}
         </div>

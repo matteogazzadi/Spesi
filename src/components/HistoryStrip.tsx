@@ -1,6 +1,7 @@
 import { computeForecast } from '../lib/forecast'
 import type { BudgetingMode } from '../lib/forecast'
 import type { Database } from '../lib/database.types'
+import { useTranslation } from '../contexts/LanguageContext'
 
 type MonthlyTotalRow = Database['public']['Tables']['monthly_totals']['Row']
 
@@ -10,23 +11,24 @@ interface Props {
   currentMonth: string
 }
 
-function shortLabel(month: string): string {
+function shortLabel(month: string, locale: string): string {
   const [y, m] = month.split('-')
   return new Date(Number(y), Number(m) - 1, 1)
-    .toLocaleString('default', { month: 'short' })
+    .toLocaleString(locale, { month: 'short' })
     .slice(0, 3)
 }
 
 export function HistoryStrip({ history, budgetingMode, currentMonth }: Props) {
+  const { t, locale } = useTranslation()
   const past = history.filter((h) => h.month < currentMonth)
   const recent = past.slice(-12)
 
   if (recent.length === 0) {
     return (
       <div className="card">
-        <div className="card-title">History</div>
+        <div className="card-title">{t('history.title')}</div>
         <p className="col-muted" style={{ fontSize: '.875rem' }}>
-          No historical data yet. Upload your first file to get started.
+          {t('history.empty')}
         </p>
       </div>
     )
@@ -52,7 +54,7 @@ export function HistoryStrip({ history, budgetingMode, currentMonth }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Forecast vs actual</div>
+      <div className="card-title">{t('history.title')}</div>
       <div className="history-strip-scroll">
       <div className="history-strip">
         {barsData.map((b) => {
@@ -88,24 +90,24 @@ export function HistoryStrip({ history, budgetingMode, currentMonth }: Props) {
                   />
                 )}
               </div>
-              <span className="history-bar-label">{shortLabel(b.month)}</span>
+              <span className="history-bar-label">{shortLabel(b.month, locale)}</span>
             </div>
           )
         })}
       </div>
-      </div>{/* end history-strip-scroll */}
+      </div>
       <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: '.72rem', color: 'var(--text-muted)' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ width: 10, height: 10, background: 'var(--under)', borderRadius: 2, display: 'inline-block', opacity: .8 }} />
-          Under forecast
+          {t('history.under')}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ width: 10, height: 10, background: 'var(--over)', borderRadius: 2, display: 'inline-block', opacity: .8 }} />
-          Over forecast
+          {t('history.over')}
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ width: 16, height: 2, background: 'var(--text-muted)', display: 'inline-block', opacity: .5 }} />
-          Forecast
+          {t('history.forecast')}
         </span>
       </div>
     </div>
