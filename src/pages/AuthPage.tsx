@@ -162,6 +162,8 @@ export function AuthPage() {
   const [verifyFactorId, setVerifyFactorId] = useState('')
   const [challengeId, setChallengeId] = useState('')
   const [showLangMenu, setShowLangMenu] = useState(false)
+  const [activeFeature, setActiveFeature] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -267,6 +269,17 @@ export function AuthPage() {
     { title: t('auth.f5.title'), desc: t('auth.f5.desc') },
   ]
 
+  useEffect(() => {
+    intervalRef.current = setInterval(() => setActiveFeature(p => (p + 1) % 5), 4000)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function goToFeature(i: number) {
+    setActiveFeature(i)
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(() => setActiveFeature(p => (p + 1) % 5), 4000)
+  }
+
   return (
     <div className="auth-wrap" onClick={() => setShowLangMenu(false)}>
       {/* ── Left hero ── */}
@@ -280,11 +293,7 @@ export function AuthPage() {
 
           <div className="auth-features-wrap">
             {features.map((f, i) => (
-              <div
-                key={i}
-                className="auth-feature"
-                style={{ animationDelay: `${i * 4}s` }}
-              >
+              <div key={i} className={`auth-feature${activeFeature === i ? ' active' : ''}`}>
                 <div className="auth-feature-num">{String(i + 1).padStart(2, '0')}</div>
                 <div>
                   <div className="auth-feature-title">{f.title}</div>
@@ -294,9 +303,11 @@ export function AuthPage() {
             ))}
           </div>
           <div className="auth-hero-dots">
+            <button className="auth-dot-nav" onClick={() => goToFeature((activeFeature - 1 + 5) % 5)} aria-label="Previous">‹</button>
             {features.map((_, i) => (
-              <div key={i} className="auth-dot" style={{ animationDelay: `${i * 4}s` }} />
+              <button key={i} className={`auth-dot${activeFeature === i ? ' active' : ''}`} onClick={() => goToFeature(i)} aria-label={`Feature ${i + 1}`} />
             ))}
+            <button className="auth-dot-nav" onClick={() => goToFeature((activeFeature + 1) % 5)} aria-label="Next">›</button>
           </div>
         </div>
       </div>
