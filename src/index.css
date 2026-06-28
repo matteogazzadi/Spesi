@@ -181,7 +181,7 @@ body {
 /* Left hero panel */
 .auth-hero {
   flex: 0 0 55%;
-  background: var(--text);
+  background: #0F172A;
   display: flex;
   align-items: center;
   padding: 60px 72px;
