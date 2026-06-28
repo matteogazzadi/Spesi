@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { PlannedExpense } from '../hooks/useMonthlyData'
+import { useTranslation } from '../contexts/LanguageContext'
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
-
-function monthLabel(ym: string): string {
+function monthLabel(ym: string, locale: string): string {
   const [y, m] = ym.split('-')
-  const s = new Date(Number(y), Number(m) - 1, 1).toLocaleString('it-IT', { month: 'long', year: 'numeric' })
+  const s = new Date(Number(y), Number(m) - 1, 1).toLocaleString(locale, { month: 'long', year: 'numeric' })
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
@@ -22,6 +20,10 @@ interface Props {
 }
 
 export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth, onRefetch }: Props) {
+  const { t, locale } = useTranslation()
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+
   const [desc, setDesc] = useState('')
   const [amount, setAmount] = useState('')
   const [month, setMonth] = useState(nextMonth)
@@ -59,7 +61,6 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
     onRefetch()
   }
 
-  // Show only current + future months
   const upcoming = expenses.filter(e => e.month >= currentMonth)
   const byMonth = upcoming.reduce<Record<string, PlannedExpense[]>>((acc, e) => {
     acc[e.month] = [...(acc[e.month] ?? []), e]
@@ -69,7 +70,7 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
 
   return (
     <div className="card planned-card">
-      <div className="card-title">Planned extras</div>
+      <div className="card-title">{t('planned.title')}</div>
 
       {sortedMonths.length > 0 && (
         <div className="planned-list">
@@ -79,9 +80,9 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
             return (
               <div key={m} className="planned-month-group">
                 <div className="planned-month-label">
-                  {monthLabel(m)}
+                  {monthLabel(m, locale)}
                   {totalExtra > 0 && (
-                    <span className="planned-month-extra">+{fmt(totalExtra)} to budget</span>
+                    <span className="planned-month-extra">{t('planned.to_budget', { amount: fmt(totalExtra) })}</span>
                   )}
                 </div>
                 {items.map(e => {
@@ -92,9 +93,9 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
                         <span className="planned-item-desc">{e.description}</span>
                         <span className="planned-item-meta">
                           {fmt(e.amount)}
-                          {e.unplanned_pct === 100 && ' · fully extra'}
-                          {e.unplanned_pct === 0 && ' · already in budget'}
-                          {e.unplanned_pct > 0 && e.unplanned_pct < 100 && ` · ${e.unplanned_pct}% extra → +${fmt(extra)}`}
+                          {e.unplanned_pct === 100 && ` ${t('planned.tag_full')}`}
+                          {e.unplanned_pct === 0 && ` ${t('planned.tag_none')}`}
+                          {e.unplanned_pct > 0 && e.unplanned_pct < 100 && ` ${t('planned.tag_pct', { pct: e.unplanned_pct, amount: fmt(extra) })}`}
                         </span>
                       </div>
                       <button
@@ -119,7 +120,7 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
           <input
             className="planned-input planned-input-desc"
             type="text"
-            placeholder="Description (e.g. Car insurance)"
+            placeholder={t('planned.desc')}
             value={desc}
             onChange={e => setDesc(e.target.value)}
             maxLength={120}
@@ -128,7 +129,7 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
           <input
             className="planned-input planned-input-amount"
             type="number"
-            placeholder="Amount €"
+            placeholder={t('planned.amount')}
             min="0"
             step="0.01"
             value={amount}
@@ -145,14 +146,14 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
         </div>
 
         <div className="planned-pct-row">
-          <span className="planned-pct-label">Above your normal budget:</span>
+          <span className="planned-pct-label">{t('planned.above')}</span>
           <label className="planned-pct-option">
             <input type="radio" name="pct" checked={pctMode === 'full'} onChange={() => setPctMode('full')} />
-            <span>Fully extra (100%)</span>
+            <span>{t('planned.full')}</span>
           </label>
           <label className="planned-pct-option">
             <input type="radio" name="pct" checked={pctMode === 'partial'} onChange={() => setPctMode('partial')} />
-            <span>Partially</span>
+            <span>{t('planned.partial')}</span>
           </label>
           {pctMode === 'partial' && (
             <div className="planned-pct-custom">
@@ -169,20 +170,20 @@ export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth,
           )}
           <label className="planned-pct-option">
             <input type="radio" name="pct" checked={pctMode === 'none'} onChange={() => setPctMode('none')} />
-            <span>Already budgeted</span>
+            <span>{t('planned.none')}</span>
           </label>
         </div>
 
         {impact > 0 && (
           <div className="planned-impact">
-            Budget impact: <strong>+{fmt(impact)}</strong> added to {monthLabel(month)} forecast
+            {t('planned.impact', { amount: fmt(impact), month: monthLabel(month, locale) })}
           </div>
         )}
 
         {error && <div className="msg msg-error" style={{ marginTop: 8, marginBottom: 0 }}>{error}</div>}
 
         <button className="btn btn-primary planned-submit" type="submit" disabled={saving}>
-          {saving ? 'Adding…' : '+ Add planned expense'}
+          {saving ? t('planned.adding') : t('planned.add')}
         </button>
       </form>
     </div>

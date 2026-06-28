@@ -1,11 +1,9 @@
 import type { LastMonthSummary } from '../hooks/useMonthlyData'
+import { useTranslation } from '../contexts/LanguageContext'
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
-
-function monthName(ym: string): string {
+function monthName(ym: string, locale: string): string {
   const [y, m] = ym.split('-')
-  const s = new Date(Number(y), Number(m) - 1, 1).toLocaleString('it-IT', { month: 'long', year: 'numeric' })
+  const s = new Date(Number(y), Number(m) - 1, 1).toLocaleString(locale, { month: 'long', year: 'numeric' })
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
@@ -14,6 +12,10 @@ interface Props {
 }
 
 export function LastMonthCard({ summary }: Props) {
+  const { t, locale } = useTranslation()
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+
   const { month, actual, forecast } = summary
   const hasForecast = forecast > 0
   const delta = actual - forecast
@@ -22,20 +24,20 @@ export function LastMonthCard({ summary }: Props) {
 
   return (
     <div className="card last-month-card">
-      <div className="card-title" style={{ marginBottom: 12 }}>Last month · {monthName(month)}</div>
+      <div className="card-title" style={{ marginBottom: 12 }}>{t('lastmonth.title', { month: monthName(month, locale) })}</div>
       <div className="last-month-row">
         <div className="last-month-stat">
-          <div className="last-month-label">Actual</div>
+          <div className="last-month-label">{t('lastmonth.actual')}</div>
           <div className="last-month-value num">{fmt(actual)}</div>
         </div>
         {hasForecast && (
           <>
             <div className="last-month-stat">
-              <div className="last-month-label">Forecast was</div>
+              <div className="last-month-label">{t('lastmonth.forecast_was')}</div>
               <div className="last-month-value num col-muted">{fmt(forecast)}</div>
             </div>
             <div className="last-month-stat">
-              <div className="last-month-label">Delta</div>
+              <div className="last-month-label">{t('lastmonth.delta')}</div>
               <div
                 className="last-month-value num"
                 style={{ color: isOver ? 'var(--over)' : 'var(--accent)' }}
