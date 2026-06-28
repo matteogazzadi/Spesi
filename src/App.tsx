@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { CurrencyProvider } from './contexts/CurrencyContext'
 import { useAuth } from './contexts/useAuth'
 import { AuthPage } from './pages/AuthPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -44,10 +45,12 @@ function App() {
     <AuthProvider>
       <ThemeProvider>
         <LanguageProvider>
-          <BrowserRouter>
-            <AppRoutes />
-            <CookieBanner />
-          </BrowserRouter>
+          <CurrencyProvider>
+            <BrowserRouter>
+              <AppRoutes />
+              <CookieBanner />
+            </BrowserRouter>
+          </CurrencyProvider>
         </LanguageProvider>
       </ThemeProvider>
     </AuthProvider>

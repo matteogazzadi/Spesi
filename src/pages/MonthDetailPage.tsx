@@ -2,15 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../contexts/useAuth'
+import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 import { supabase } from '../lib/supabase'
 import { importFile, recalculateMonthTotal } from '../lib/importService'
 import type { Database } from '../lib/database.types'
 
 type TxRow = Database['public']['Tables']['transactions']['Row']
 type RuleRow = Database['public']['Tables']['exclusion_rules']['Row']
-
-const fmt = (n: number) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(n)
 
 interface EditState {
   id: string
@@ -21,6 +20,10 @@ interface EditState {
 export function MonthDetailPage() {
   const { month } = useParams<{ month: string }>()
   const { user } = useAuth()
+  const { locale } = useTranslation()
+  const { currency } = useCurrency()
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
   const userId = user!.id
 
   const [monthlyTotalId, setMonthlyTotalId] = useState<string | null>(null)

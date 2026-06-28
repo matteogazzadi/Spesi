@@ -1,6 +1,7 @@
 import type { MonthlyDataResult } from '../hooks/useMonthlyData'
 import type { ConfidenceLevel } from '../lib/forecast'
 import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 
 function monthName(ym: string, locale: string): string {
   const [y, m] = ym.split('-')
@@ -20,8 +21,9 @@ interface Props {
 
 export function CurrentMonthCard({ data }: Props) {
   const { t, locale } = useTranslation()
+  const { currency } = useCurrency()
   const fmt = (n: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
 
   const { forecast, adjustedForecast, nextMonthForecast, nextMonthAdjustedForecast,
           currentMonth, nextMonth, confidence, trendPct, forecastLow, forecastHigh } = data

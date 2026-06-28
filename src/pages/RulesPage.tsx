@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../contexts/useAuth'
 import { useExclusionRules } from '../hooks/useExclusionRules'
-
-const fmt = (n: number) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 
 export function RulesPage() {
   const { user } = useAuth()
+  const { locale } = useTranslation()
+  const { currency } = useCurrency()
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
   const { rules, loading, error, addRule, toggleRule, deleteRule } = useExclusionRules(user!.id)
 
   const [pattern, setPattern] = useState('')

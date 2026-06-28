@@ -149,6 +149,8 @@ const en = {
   'settings.dark_desc': 'Dark background, easier on the eyes in low light.',
   'settings.language': 'Language',
   'settings.language_desc': 'Interface language. Detected from your browser, or choose manually.',
+  'settings.currency': 'Currency',
+  'settings.currency_desc': 'Choose the currency used to display all amounts across the app.',
 
   // Auth page
   'auth.tagline': 'Smart budget forecasting.',
@@ -357,6 +359,8 @@ const it: typeof en = {
   'settings.dark_desc': 'Sfondo scuro, più comodo con poca luce.',
   'settings.language': 'Lingua',
   'settings.language_desc': 'Lingua dell\'interfaccia. Rilevata dal browser o scelta manualmente.',
+  'settings.currency': 'Valuta',
+  'settings.currency_desc': 'Scegli la valuta usata per visualizzare tutti gli importi nell\'app.',
 
   'auth.tagline': 'Previsione budget intelligente.',
   'auth.sub': 'Inserisci i tuoi totali mensili e ottieni una previsione adattiva per questo mese e il prossimo. Più storico aggiungi, più precisa sarà la previsione.',
@@ -560,6 +564,8 @@ const es: typeof en = {
   'settings.dark_desc': 'Fondo oscuro, más cómodo con poca luz.',
   'settings.language': 'Idioma',
   'settings.language_desc': 'Idioma de la interfaz. Detectado del navegador o elegido manualmente.',
+  'settings.currency': 'Moneda',
+  'settings.currency_desc': 'Elige la moneda para mostrar todos los importes en la app.',
 
   'auth.tagline': 'Previsión de gasto inteligente.',
   'auth.sub': 'Añade tus totales mensuales y obtén una previsión adaptiva para este mes y el siguiente. Cuanto más historial añadas, más precisa será la predicción.',
@@ -763,6 +769,8 @@ const fr: typeof en = {
   'settings.dark_desc': 'Fond sombre, plus confortable en basse lumière.',
   'settings.language': 'Langue',
   'settings.language_desc': 'Langue de l\'interface. Détectée depuis le navigateur ou choisie manuellement.',
+  'settings.currency': 'Devise',
+  'settings.currency_desc': 'Choisissez la devise utilisée pour afficher tous les montants dans l\'application.',
 
   'auth.tagline': 'Prévision de budget intelligente.',
   'auth.sub': 'Entrez vos totaux mensuels et obtenez une prévision adaptative pour ce mois-ci et le suivant. Plus vous ajoutez d\'historique, plus la prédiction est précise.',
@@ -966,6 +974,8 @@ const de: typeof en = {
   'settings.dark_desc': 'Dunkler Hintergrund, angenehmer bei schlechtem Licht.',
   'settings.language': 'Sprache',
   'settings.language_desc': 'Sprache der Benutzeroberfläche. Vom Browser erkannt oder manuell gewählt.',
+  'settings.currency': 'Währung',
+  'settings.currency_desc': 'Wähle die Währung zur Anzeige aller Beträge in der App.',
 
   'auth.tagline': 'Intelligente Budgetprognose.',
   'auth.sub': 'Trage deine monatlichen Ausgaben ein und erhalte eine adaptive Prognose für diesen und den nächsten Monat. Je mehr Verlauf du hinzufügst, desto genauer die Vorhersage.',
@@ -1169,6 +1179,8 @@ const pt: typeof en = {
   'settings.dark_desc': 'Fundo escuro, mais confortável com pouca luz.',
   'settings.language': 'Idioma',
   'settings.language_desc': 'Idioma da interface. Detetado do navegador ou escolhido manualmente.',
+  'settings.currency': 'Moeda',
+  'settings.currency_desc': 'Escolha a moeda utilizada para apresentar todos os valores na app.',
 
   'auth.tagline': 'Previsão de orçamento inteligente.',
   'auth.sub': 'Adicione os seus totais mensais e obtenha uma previsão adaptativa para este mês e o seguinte. Quanto mais histórico adicionar, mais precisa será a previsão.',

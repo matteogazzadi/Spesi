@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/database.types'
 import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 
 type BaselineAdjustment = Database['public']['Tables']['baseline_adjustments']['Row']
 
@@ -16,10 +17,11 @@ function currentYearMonth(): string {
 
 export function LifeShiftsCard({ userId }: Props) {
   const { t, locale } = useTranslation()
+  const { currency } = useCurrency()
   const fmtAmt = (n: number) =>
     new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: 'EUR',
+      currency,
       signDisplay: 'always',
       maximumFractionDigits: 0,
     }).format(n)
