@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { useAuth } from '../contexts/useAuth'
 import { useTheme } from '../contexts/ThemeContext'
+import { useTranslation } from '../contexts/LanguageContext'
 
 interface Props { children: ReactNode }
 
@@ -32,6 +33,7 @@ function MoonIcon() {
 export function AppLayout({ children }: Props) {
   const { signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { t } = useTranslation()
 
   return (
     <>
@@ -39,21 +41,21 @@ export function AppLayout({ children }: Props) {
         <div className="app-header-left">
           <span className="app-logo">Spesi</span>
           <nav className="app-nav">
-            <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Dashboard</NavLink>
-            <NavLink to="/months" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Months</NavLink>
-            <NavLink to="/rules" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Rules</NavLink>
-            <NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Settings</NavLink>
+            <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{t('nav.dashboard')}</NavLink>
+            <NavLink to="/months" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{t('nav.months')}</NavLink>
+            <NavLink to="/rules" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{t('nav.rules')}</NavLink>
+            <NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{t('nav.settings')}</NavLink>
           </nav>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             className="btn-theme-toggle"
             onClick={toggleTheme}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={theme === 'dark' ? t('nav.theme.to_light') : t('nav.theme.to_dark')}
           >
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
-          <button className="btn-ghost" onClick={signOut}>Sign out</button>
+          <button className="btn-ghost" onClick={signOut}>{t('nav.sign_out')}</button>
         </div>
       </header>
       <main className="app-main">{children}</main>
