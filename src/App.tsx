@@ -10,6 +10,7 @@ import { RulesPage } from './pages/RulesPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { MonthsPage } from './pages/MonthsPage'
 import { MonthDetailPage } from './pages/MonthDetailPage'
+import { CookieBanner } from './components/CookieBanner'
 
 function AppRoutes() {
   const { authLevel } = useAuth()
@@ -45,6 +46,7 @@ function App() {
         <LanguageProvider>
           <BrowserRouter>
             <AppRoutes />
+            <CookieBanner />
           </BrowserRouter>
         </LanguageProvider>
       </ThemeProvider>

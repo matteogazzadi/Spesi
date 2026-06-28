@@ -220,6 +220,22 @@ const en = {
   'csvmap.preview': 'Preview (first 3 rows)',
   'csvmap.confirm': 'Import',
   'csvmap.cancel': 'Cancel',
+
+  // Cookie consent
+  'cookie.banner': 'We use essential cookies to keep you signed in, and browser storage to remember your language and theme. No analytics or advertising trackers are used.',
+  'cookie.accept': 'Accept & continue',
+  'cookie.details': 'Cookie details',
+  'cookie.table.name': 'Name',
+  'cookie.table.purpose': 'Purpose',
+  'cookie.table.duration': 'Duration',
+  'cookie.table.type': 'Type',
+  'cookie.necessary': 'Strictly necessary',
+  'cookie.functional': 'Functional',
+  'cookie.persistent': 'Persistent',
+  'cookie.c1.purpose': 'Keeps you authenticated',
+  'cookie.c2.purpose': 'Renews your session automatically',
+  'cookie.c3.purpose': 'Remembers your language preference',
+  'cookie.c4.purpose': 'Remembers your theme (light / dark)',
 }
 
 const it: typeof en = {
@@ -408,6 +424,21 @@ const it: typeof en = {
   'csvmap.preview': 'Anteprima (prime 3 righe)',
   'csvmap.confirm': 'Importa',
   'csvmap.cancel': 'Annulla',
+
+  'cookie.banner': 'Utilizziamo cookie essenziali per mantenerti autenticato e localStorage per ricordare lingua e tema. Nessun tracker pubblicitario o analitico.',
+  'cookie.accept': 'Accetta e continua',
+  'cookie.details': 'Dettagli cookie',
+  'cookie.table.name': 'Nome',
+  'cookie.table.purpose': 'Scopo',
+  'cookie.table.duration': 'Durata',
+  'cookie.table.type': 'Tipo',
+  'cookie.necessary': 'Strettamente necessario',
+  'cookie.functional': 'Funzionale',
+  'cookie.persistent': 'Persistente',
+  'cookie.c1.purpose': 'Mantiene l\'autenticazione attiva',
+  'cookie.c2.purpose': 'Rinnova automaticamente la sessione',
+  'cookie.c3.purpose': 'Ricorda la preferenza di lingua',
+  'cookie.c4.purpose': 'Ricorda il tema (chiaro / scuro)',
 }
 
 const es: typeof en = {
@@ -596,6 +627,21 @@ const es: typeof en = {
   'csvmap.preview': 'Vista previa (primeras 3 filas)',
   'csvmap.confirm': 'Importar',
   'csvmap.cancel': 'Cancelar',
+
+  'cookie.banner': 'Usamos cookies esenciales para mantener tu sesión y almacenamiento local para recordar tu idioma y tema. No se usan rastreadores de análisis ni publicidad.',
+  'cookie.accept': 'Aceptar y continuar',
+  'cookie.details': 'Detalles de cookies',
+  'cookie.table.name': 'Nombre',
+  'cookie.table.purpose': 'Finalidad',
+  'cookie.table.duration': 'Duración',
+  'cookie.table.type': 'Tipo',
+  'cookie.necessary': 'Estrictamente necesario',
+  'cookie.functional': 'Funcional',
+  'cookie.persistent': 'Persistente',
+  'cookie.c1.purpose': 'Mantiene tu sesión activa',
+  'cookie.c2.purpose': 'Renueva tu sesión automáticamente',
+  'cookie.c3.purpose': 'Recuerda tu preferencia de idioma',
+  'cookie.c4.purpose': 'Recuerda tu tema (claro / oscuro)',
 }
 
 const fr: typeof en = {
@@ -784,6 +830,21 @@ const fr: typeof en = {
   'csvmap.preview': 'Aperçu (3 premières lignes)',
   'csvmap.confirm': 'Importer',
   'csvmap.cancel': 'Annuler',
+
+  'cookie.banner': 'Nous utilisons des cookies essentiels pour maintenir votre session et le stockage local pour mémoriser langue et thème. Aucun outil d\'analyse ou de publicité.',
+  'cookie.accept': 'Accepter et continuer',
+  'cookie.details': 'Détails des cookies',
+  'cookie.table.name': 'Nom',
+  'cookie.table.purpose': 'Finalité',
+  'cookie.table.duration': 'Durée',
+  'cookie.table.type': 'Type',
+  'cookie.necessary': 'Strictement nécessaire',
+  'cookie.functional': 'Fonctionnel',
+  'cookie.persistent': 'Persistant',
+  'cookie.c1.purpose': 'Maintient votre authentification active',
+  'cookie.c2.purpose': 'Renouvelle votre session automatiquement',
+  'cookie.c3.purpose': 'Mémorise votre préférence de langue',
+  'cookie.c4.purpose': 'Mémorise votre thème (clair / sombre)',
 }
 
 const de: typeof en = {
@@ -972,6 +1033,21 @@ const de: typeof en = {
   'csvmap.preview': 'Vorschau (erste 3 Zeilen)',
   'csvmap.confirm': 'Importieren',
   'csvmap.cancel': 'Abbrechen',
+
+  'cookie.banner': 'Wir verwenden notwendige Cookies zur Authentifizierung und localStorage für Sprache und Theme. Keine Analyse- oder Werbe-Tracker.',
+  'cookie.accept': 'Akzeptieren und fortfahren',
+  'cookie.details': 'Cookie-Details',
+  'cookie.table.name': 'Name',
+  'cookie.table.purpose': 'Zweck',
+  'cookie.table.duration': 'Dauer',
+  'cookie.table.type': 'Typ',
+  'cookie.necessary': 'Technisch notwendig',
+  'cookie.functional': 'Funktional',
+  'cookie.persistent': 'Dauerhaft',
+  'cookie.c1.purpose': 'Hält dich angemeldet',
+  'cookie.c2.purpose': 'Erneuert deine Sitzung automatisch',
+  'cookie.c3.purpose': 'Merkt sich deine Spracheinstellung',
+  'cookie.c4.purpose': 'Merkt sich das Theme (Hell / Dunkel)',
 }
 
 const pt: typeof en = {
@@ -1160,6 +1236,21 @@ const pt: typeof en = {
   'csvmap.preview': 'Pré-visualização (primeiras 3 linhas)',
   'csvmap.confirm': 'Importar',
   'csvmap.cancel': 'Cancelar',
+
+  'cookie.banner': 'Utilizamos cookies essenciais para manter a sua sessão e armazenamento local para recordar idioma e tema. Não são usados rastreadores de análise ou publicidade.',
+  'cookie.accept': 'Aceitar e continuar',
+  'cookie.details': 'Detalhes dos cookies',
+  'cookie.table.name': 'Nome',
+  'cookie.table.purpose': 'Finalidade',
+  'cookie.table.duration': 'Duração',
+  'cookie.table.type': 'Tipo',
+  'cookie.necessary': 'Estritamente necessário',
+  'cookie.functional': 'Funcional',
+  'cookie.persistent': 'Persistente',
+  'cookie.c1.purpose': 'Mantém a sua autenticação ativa',
+  'cookie.c2.purpose': 'Renova a sua sessão automaticamente',
+  'cookie.c3.purpose': 'Recorda a sua preferência de idioma',
+  'cookie.c4.purpose': 'Recorda o seu tema (claro / escuro)',
 }
 
 export const translations: Record<LangCode, typeof en> = { en, it, es, fr, de, pt }
