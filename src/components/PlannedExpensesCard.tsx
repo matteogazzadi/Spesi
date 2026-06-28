@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { PlannedExpense } from '../hooks/useMonthlyData'
 import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 
 function monthLabel(ym: string, locale: string): string {
   const [y, m] = ym.split('-')
@@ -21,8 +22,9 @@ interface Props {
 
 export function PlannedExpensesCard({ userId, expenses, currentMonth, nextMonth, onRefetch }: Props) {
   const { t, locale } = useTranslation()
+  const { currency } = useCurrency()
   const fmt = (n: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
 
   const [desc, setDesc] = useState('')
   const [amount, setAmount] = useState('')

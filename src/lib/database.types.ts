@@ -139,6 +139,7 @@ export type Database = {
           annual_target: number | null
           theme: 'light' | 'dark' | null
           language: string | null
+          currency: string | null
         }
         Insert: {
           user_id: string
@@ -146,6 +147,7 @@ export type Database = {
           annual_target?: number | null
           theme?: 'light' | 'dark' | null
           language?: string | null
+          currency?: string | null
         }
         Update: {
           user_id?: string
@@ -153,6 +155,7 @@ export type Database = {
           annual_target?: number | null
           theme?: 'light' | 'dark' | null
           language?: string | null
+          currency?: string | null
         }
         Relationships: [
           {

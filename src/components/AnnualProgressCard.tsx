@@ -1,4 +1,5 @@
 import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 
 interface Props {
   year: string
@@ -10,8 +11,9 @@ interface Props {
 
 export function AnnualProgressCard({ year, yearToDate, projectedAnnual, annualTarget, currentMonth }: Props) {
   const { t, locale } = useTranslation()
+  const { currency } = useCurrency()
   const fmt = (n: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
 
   if (!annualTarget && yearToDate === 0 && projectedAnnual === 0) return null
 

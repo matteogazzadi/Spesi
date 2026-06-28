@@ -4,8 +4,48 @@ import { useAuth } from '../contexts/useAuth'
 import { useUserSettings } from '../hooks/useUserSettings'
 import { useTheme } from '../contexts/ThemeContext'
 import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 import { LANGUAGES, type LangCode } from '../lib/translations'
 import { LifeShiftsCard } from '../components/LifeShiftsCard'
+
+const PRIORITY_CURRENCIES = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+]
+
+const OTHER_CURRENCIES = [
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'BRL', symbol: 'R$', name: 'Brazilian Real' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
+  { code: 'CNY', symbol: '¥', name: 'Chinese Yuan' },
+  { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna' },
+  { code: 'DKK', symbol: 'kr', name: 'Danish Krone' },
+  { code: 'HKD', symbol: 'HK$', name: 'Hong Kong Dollar' },
+  { code: 'HUF', symbol: 'Ft', name: 'Hungarian Forint' },
+  { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah' },
+  { code: 'ILS', symbol: '₪', name: 'Israeli Shekel' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'KRW', symbol: '₩', name: 'South Korean Won' },
+  { code: 'MXN', symbol: 'MX$', name: 'Mexican Peso' },
+  { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit' },
+  { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone' },
+  { code: 'NZD', symbol: 'NZ$', name: 'New Zealand Dollar' },
+  { code: 'PHP', symbol: '₱', name: 'Philippine Peso' },
+  { code: 'PLN', symbol: 'zł', name: 'Polish Złoty' },
+  { code: 'RON', symbol: 'lei', name: 'Romanian Leu' },
+  { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
+  { code: 'THB', symbol: '฿', name: 'Thai Baht' },
+  { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
+  { code: 'UAH', symbol: '₴', name: 'Ukrainian Hryvnia' },
+  { code: 'VND', symbol: '₫', name: 'Vietnamese Dong' },
+  { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
+]
+
+const ALL_CURRENCIES = [...PRIORITY_CURRENCIES, ...OTHER_CURRENCIES]
 
 export function SettingsPage() {
   const { user } = useAuth()
@@ -13,9 +53,10 @@ export function SettingsPage() {
     useUserSettings(user!.id)
   const { theme, toggleTheme } = useTheme()
   const { t, lang, locale, setLang } = useTranslation()
+  const { currency, setCurrency } = useCurrency()
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
 
   const [targetInput, setTargetInput] = useState('')
   const [editingTarget, setEditingTarget] = useState(false)
@@ -184,6 +225,43 @@ export function SettingsPage() {
       </div>
 
       <LifeShiftsCard userId={user!.id} />
+
+      <div className="card">
+        <div className="card-title">{t('settings.currency')}</div>
+        <p style={{ fontSize: '.875rem', color: 'var(--text-muted)', marginBottom: 20 }}>
+          {t('settings.currency_desc')}
+        </p>
+        <div className="currency-grid">
+          {PRIORITY_CURRENCIES.map(c => (
+            <button
+              key={c.code}
+              className={`currency-option priority${currency === c.code ? ' active' : ''}`}
+              onClick={() => setCurrency(c.code)}
+            >
+              <span className="currency-symbol">{c.symbol}</span>
+              <span className="currency-code">{c.code}</span>
+              <span className="currency-name">{c.name}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <select
+            className="currency-select"
+            value={OTHER_CURRENCIES.some(c => c.code === currency) ? currency : ''}
+            onChange={e => { if (e.target.value) setCurrency(e.target.value) }}
+          >
+            <option value="">— {t('settings.currency')} —</option>
+            {OTHER_CURRENCIES.map(c => (
+              <option key={c.code} value={c.code}>
+                {c.symbol} {c.code} — {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <p style={{ fontSize: '.8rem', color: 'var(--text-muted)', marginTop: 8 }}>
+          {fmt(1234)} · {ALL_CURRENCIES.find(c => c.code === currency)?.name ?? currency}
+        </p>
+      </div>
 
       <div className="card">
         <div className="card-title">{t('settings.language')}</div>

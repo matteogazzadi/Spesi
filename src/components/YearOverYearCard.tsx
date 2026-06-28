@@ -1,5 +1,6 @@
 import type { Database } from '../lib/database.types'
 import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 
 type MonthlyTotalRow = Database['public']['Tables']['monthly_totals']['Row']
 
@@ -11,8 +12,9 @@ const LINE_COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6']
 
 export function YearOverYearCard({ history }: Props) {
   const { t, locale } = useTranslation()
+  const { currency } = useCurrency()
   const fmt = (n: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
 
   // Generate locale-aware month abbreviations
   const monthLabels = Array.from({ length: 12 }, (_, mi) =>

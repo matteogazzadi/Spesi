@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import { useAuth } from '../contexts/useAuth'
 import { useTranslation } from '../contexts/LanguageContext'
+import { useCurrency } from '../contexts/CurrencyContext'
 import { supabase } from '../lib/supabase'
 import { importFile } from '../lib/importService'
 import { UploadZone } from '../components/UploadZone'
@@ -25,8 +26,9 @@ function fmtDate(iso: string, locale: string) {
 export function MonthsPage() {
   const { user } = useAuth()
   const { t, locale } = useTranslation()
+  const { currency } = useCurrency()
   const fmt = (n: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+    new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
   const userId = user!.id
   const [months, setMonths] = useState<MonthWithStats[]>([])
   const [loading, setLoading] = useState(true)
