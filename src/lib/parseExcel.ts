@@ -31,6 +31,15 @@ function parseDate(raw: unknown): { date: string; month: string } | null {
   return { date, month }
 }
 
+export function isBancaSella(buffer: ArrayBuffer): boolean {
+  try {
+    const workbook = XLSX.read(buffer, { type: 'array' })
+    return workbook.SheetNames.includes('ExportExcel')
+  } catch {
+    return false
+  }
+}
+
 export function parseExcelFile(buffer: ArrayBuffer): Transaction[] {
   const workbook = XLSX.read(buffer, { type: 'array' })
   const sheet = workbook.Sheets['ExportExcel']

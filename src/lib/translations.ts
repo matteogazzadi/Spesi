@@ -149,6 +149,38 @@ const en = {
   'settings.dark_desc': 'Dark background, easier on the eyes in low light.',
   'settings.language': 'Language',
   'settings.language_desc': 'Interface language. Detected from your browser, or choose manually.',
+
+  // Life shifts
+  'life.title': 'Life settings',
+  'life.desc': 'Add permanent or time-limited monthly offsets to your forecast baseline — e.g. a new recurring bill or lower rent after moving.',
+  'life.desc_col': 'Description',
+  'life.amount_col': 'Monthly offset (€)',
+  'life.from': 'From',
+  'life.to': 'To (optional)',
+  'life.permanent': 'Permanent',
+  'life.add': '+ Add life shift',
+  'life.adding': 'Adding…',
+  'life.desc_ph': 'e.g. New car payment',
+  'life.amount_ph': '+250 or -300',
+  'life.empty': 'No life shifts set.',
+
+  // Outlier suggestions
+  'suggest.title': 'Unusual transactions detected',
+  'suggest.desc': 'These look like one-off outliers. Exclude them to keep your forecast accurate.',
+  'suggest.exclude': 'Exclude',
+  'suggest.dismiss': 'Dismiss',
+
+  // CSV mapper
+  'csvmap.title': 'Map your CSV columns',
+  'csvmap.desc': "We couldn't detect the format automatically. Select which columns contain the date and amount.",
+  'csvmap.date_col': 'Date column',
+  'csvmap.amount_col': 'Amount column',
+  'csvmap.sign': 'Expenses shown as',
+  'csvmap.negative': 'Negative values (e.g. −120)',
+  'csvmap.positive': 'Positive values (e.g. 120)',
+  'csvmap.preview': 'Preview (first 3 rows)',
+  'csvmap.confirm': 'Import',
+  'csvmap.cancel': 'Cancel',
 }
 
 const it: typeof en = {
@@ -270,6 +302,35 @@ const it: typeof en = {
   'settings.dark_desc': 'Sfondo scuro, più comodo con poca luce.',
   'settings.language': 'Lingua',
   'settings.language_desc': 'Lingua dell\'interfaccia. Rilevata dal browser o scelta manualmente.',
+
+  'life.title': 'Impostazioni di vita',
+  'life.desc': 'Aggiungi offset mensili permanenti o temporanei alla previsione — es. una nuova rata o un affitto più basso.',
+  'life.desc_col': 'Descrizione',
+  'life.amount_col': 'Offset mensile (€)',
+  'life.from': 'Da',
+  'life.to': 'A (opzionale)',
+  'life.permanent': 'Permanente',
+  'life.add': '+ Aggiungi variazione di vita',
+  'life.adding': 'Aggiunta…',
+  'life.desc_ph': 'es. Nuova rata auto',
+  'life.amount_ph': '+250 o -300',
+  'life.empty': 'Nessuna variazione di vita impostata.',
+
+  'suggest.title': 'Transazioni insolite rilevate',
+  'suggest.desc': 'Queste sembrano spese una tantum. Escludile per mantenere la previsione accurata.',
+  'suggest.exclude': 'Escludi',
+  'suggest.dismiss': 'Ignora',
+
+  'csvmap.title': 'Mappa le colonne CSV',
+  'csvmap.desc': 'Formato non riconosciuto automaticamente. Seleziona le colonne di data e importo.',
+  'csvmap.date_col': 'Colonna data',
+  'csvmap.amount_col': 'Colonna importo',
+  'csvmap.sign': 'Le spese sono mostrate come',
+  'csvmap.negative': 'Valori negativi (es. −120)',
+  'csvmap.positive': 'Valori positivi (es. 120)',
+  'csvmap.preview': 'Anteprima (prime 3 righe)',
+  'csvmap.confirm': 'Importa',
+  'csvmap.cancel': 'Annulla',
 }
 
 const es: typeof en = {
@@ -391,6 +452,35 @@ const es: typeof en = {
   'settings.dark_desc': 'Fondo oscuro, más cómodo con poca luz.',
   'settings.language': 'Idioma',
   'settings.language_desc': 'Idioma de la interfaz. Detectado del navegador o elegido manualmente.',
+
+  'life.title': 'Ajustes de vida',
+  'life.desc': 'Añade offsets mensuales permanentes o temporales a la base — p. ej. una nueva cuota o alquiler más bajo.',
+  'life.desc_col': 'Descripción',
+  'life.amount_col': 'Offset mensual (€)',
+  'life.from': 'Desde',
+  'life.to': 'Hasta (opcional)',
+  'life.permanent': 'Permanente',
+  'life.add': '+ Añadir cambio de vida',
+  'life.adding': 'Añadiendo…',
+  'life.desc_ph': 'p. ej. Nueva cuota del coche',
+  'life.amount_ph': '+250 o -300',
+  'life.empty': 'Sin cambios de vida configurados.',
+
+  'suggest.title': 'Transacciones inusuales detectadas',
+  'suggest.desc': 'Estas parecen gastos puntuales. Exclúyelas para mantener la previsión precisa.',
+  'suggest.exclude': 'Excluir',
+  'suggest.dismiss': 'Ignorar',
+
+  'csvmap.title': 'Mapear columnas CSV',
+  'csvmap.desc': 'No se detectó el formato automáticamente. Selecciona las columnas de fecha e importe.',
+  'csvmap.date_col': 'Columna de fecha',
+  'csvmap.amount_col': 'Columna de importe',
+  'csvmap.sign': 'Los gastos se muestran como',
+  'csvmap.negative': 'Valores negativos (ej. −120)',
+  'csvmap.positive': 'Valores positivos (ej. 120)',
+  'csvmap.preview': 'Vista previa (primeras 3 filas)',
+  'csvmap.confirm': 'Importar',
+  'csvmap.cancel': 'Cancelar',
 }
 
 const fr: typeof en = {
@@ -512,6 +602,35 @@ const fr: typeof en = {
   'settings.dark_desc': 'Fond sombre, plus confortable en basse lumière.',
   'settings.language': 'Langue',
   'settings.language_desc': 'Langue de l\'interface. Détectée depuis le navigateur ou choisie manuellement.',
+
+  'life.title': 'Paramètres de vie',
+  'life.desc': 'Ajoutez des décalages mensuels permanents ou limités dans le temps — p. ex. une nouvelle mensualité ou un loyer plus bas.',
+  'life.desc_col': 'Description',
+  'life.amount_col': 'Décalage mensuel (€)',
+  'life.from': 'À partir de',
+  'life.to': 'Jusqu\'à (optionnel)',
+  'life.permanent': 'Permanent',
+  'life.add': '+ Ajouter un changement de vie',
+  'life.adding': 'Ajout…',
+  'life.desc_ph': 'p. ex. Nouvelle mensualité voiture',
+  'life.amount_ph': '+250 ou -300',
+  'life.empty': 'Aucun changement de vie configuré.',
+
+  'suggest.title': 'Transactions inhabituelles détectées',
+  'suggest.desc': 'Celles-ci semblent être des dépenses ponctuelles. Excluez-les pour maintenir la précision.',
+  'suggest.exclude': 'Exclure',
+  'suggest.dismiss': 'Ignorer',
+
+  'csvmap.title': 'Mapper les colonnes CSV',
+  'csvmap.desc': 'Format non détecté automatiquement. Sélectionnez les colonnes de date et de montant.',
+  'csvmap.date_col': 'Colonne de date',
+  'csvmap.amount_col': 'Colonne de montant',
+  'csvmap.sign': 'Les dépenses sont affichées comme',
+  'csvmap.negative': 'Valeurs négatives (ex. −120)',
+  'csvmap.positive': 'Valeurs positives (ex. 120)',
+  'csvmap.preview': 'Aperçu (3 premières lignes)',
+  'csvmap.confirm': 'Importer',
+  'csvmap.cancel': 'Annuler',
 }
 
 const de: typeof en = {
@@ -633,6 +752,35 @@ const de: typeof en = {
   'settings.dark_desc': 'Dunkler Hintergrund, angenehmer bei schlechtem Licht.',
   'settings.language': 'Sprache',
   'settings.language_desc': 'Sprache der Benutzeroberfläche. Vom Browser erkannt oder manuell gewählt.',
+
+  'life.title': 'Lebenseinstellungen',
+  'life.desc': 'Füge dauerhafte oder zeitlich begrenzte monatliche Offsets hinzu — z. B. eine neue Rate oder niedrigere Miete.',
+  'life.desc_col': 'Beschreibung',
+  'life.amount_col': 'Monatlicher Offset (€)',
+  'life.from': 'Von',
+  'life.to': 'Bis (optional)',
+  'life.permanent': 'Dauerhaft',
+  'life.add': '+ Lebensänderung hinzufügen',
+  'life.adding': 'Wird hinzugefügt…',
+  'life.desc_ph': 'z. B. Neue Kfz-Rate',
+  'life.amount_ph': '+250 oder -300',
+  'life.empty': 'Keine Lebensänderungen festgelegt.',
+
+  'suggest.title': 'Ungewöhnliche Transaktionen erkannt',
+  'suggest.desc': 'Diese sehen wie einmalige Ausgaben aus. Schließe sie aus, um die Prognose präzise zu halten.',
+  'suggest.exclude': 'Ausschließen',
+  'suggest.dismiss': 'Ignorieren',
+
+  'csvmap.title': 'CSV-Spalten zuordnen',
+  'csvmap.desc': 'Format nicht automatisch erkannt. Wähle die Spalten für Datum und Betrag.',
+  'csvmap.date_col': 'Datumsspalte',
+  'csvmap.amount_col': 'Betragsspalte',
+  'csvmap.sign': 'Ausgaben dargestellt als',
+  'csvmap.negative': 'Negative Werte (z. B. −120)',
+  'csvmap.positive': 'Positive Werte (z. B. 120)',
+  'csvmap.preview': 'Vorschau (erste 3 Zeilen)',
+  'csvmap.confirm': 'Importieren',
+  'csvmap.cancel': 'Abbrechen',
 }
 
 const pt: typeof en = {
@@ -754,6 +902,35 @@ const pt: typeof en = {
   'settings.dark_desc': 'Fundo escuro, mais confortável com pouca luz.',
   'settings.language': 'Idioma',
   'settings.language_desc': 'Idioma da interface. Detetado do navegador ou escolhido manualmente.',
+
+  'life.title': 'Definições de vida',
+  'life.desc': 'Adicione offsets mensais permanentes ou temporários — ex. nova prestação ou renda mais baixa.',
+  'life.desc_col': 'Descrição',
+  'life.amount_col': 'Offset mensal (€)',
+  'life.from': 'De',
+  'life.to': 'Até (opcional)',
+  'life.permanent': 'Permanente',
+  'life.add': '+ Adicionar mudança de vida',
+  'life.adding': 'A adicionar…',
+  'life.desc_ph': 'ex. Nova prestação do carro',
+  'life.amount_ph': '+250 ou -300',
+  'life.empty': 'Sem mudanças de vida definidas.',
+
+  'suggest.title': 'Transações incomuns detetadas',
+  'suggest.desc': 'Estas parecem despesas pontuais. Exclua-as para manter a previsão precisa.',
+  'suggest.exclude': 'Excluir',
+  'suggest.dismiss': 'Ignorar',
+
+  'csvmap.title': 'Mapear colunas CSV',
+  'csvmap.desc': 'Formato não detetado automaticamente. Selecione as colunas de data e valor.',
+  'csvmap.date_col': 'Coluna de data',
+  'csvmap.amount_col': 'Coluna de valor',
+  'csvmap.sign': 'Despesas mostradas como',
+  'csvmap.negative': 'Valores negativos (ex. −120)',
+  'csvmap.positive': 'Valores positivos (ex. 120)',
+  'csvmap.preview': 'Pré-visualização (primeiras 3 linhas)',
+  'csvmap.confirm': 'Importar',
+  'csvmap.cancel': 'Cancelar',
 }
 
 export const translations: Record<LangCode, typeof en> = { en, it, es, fr, de, pt }

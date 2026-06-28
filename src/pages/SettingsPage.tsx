@@ -5,6 +5,7 @@ import { useUserSettings } from '../hooks/useUserSettings'
 import { useTheme } from '../contexts/ThemeContext'
 import { useTranslation } from '../contexts/LanguageContext'
 import { LANGUAGES, type LangCode } from '../lib/translations'
+import { LifeShiftsCard } from '../components/LifeShiftsCard'
 
 export function SettingsPage() {
   const { user } = useAuth()
@@ -181,6 +182,8 @@ export function SettingsPage() {
           </label>
         </div>
       </div>
+
+      <LifeShiftsCard userId={user!.id} />
 
       <div className="card">
         <div className="card-title">{t('settings.language')}</div>

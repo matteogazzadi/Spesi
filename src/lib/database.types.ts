@@ -164,6 +164,44 @@ export type Database = {
           },
         ]
       }
+      baseline_adjustments: {
+        Row: {
+          id: string
+          user_id: string
+          description: string
+          amount: number
+          start_month: string
+          end_month: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          description: string
+          amount: number
+          start_month: string
+          end_month?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          description?: string
+          amount?: number
+          start_month?: string
+          end_month?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'baseline_adjustments_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       planned_expenses: {
         Row: {
           id: string

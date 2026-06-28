@@ -3,8 +3,14 @@ import type { Database } from './database.types'
 import { parseExcelFile } from './parseExcel'
 import { annotateTransactions } from './exclusionRules'
 import type { AnnotatedTransaction, ExclusionRule } from './exclusionRules'
+import type { Transaction } from './parseExcel'
 
 export type { AnnotatedTransaction }
+
+export interface ExclusionSuggestion {
+  description: string
+  amount: number
+}
 
 export function computeTotalSpent(transactions: AnnotatedTransaction[]): number {
   return transactions
@@ -125,17 +131,41 @@ export async function recalculateMonthTotal(
   await updateTotalSpent(monthlyTotalId, totalSpent, db)
 }
 
-export async function importFile(
-  file: File,
+function detectOutliers(transactions: AnnotatedTransaction[]): ExclusionSuggestion[] {
+  const amounts = transactions.filter((t) => !t.excluded).map((t) => t.amount)
+  if (amounts.length < 4) return []
+
+  const mean = amounts.reduce((s, a) => s + a, 0) / amounts.length
+  const variance = amounts.reduce((s, a) => s + (a - mean) ** 2, 0) / amounts.length
+  const stdDev = Math.sqrt(variance)
+  const threshold = mean + 2.5 * stdDev
+
+  const seen = new Set<string>()
+  const suggestions: ExclusionSuggestion[] = []
+
+  for (const t of transactions) {
+    if (t.excluded) continue
+    if (t.amount < 200) continue
+    if (t.amount < threshold) continue
+    if (seen.has(t.description)) continue
+    seen.add(t.description)
+    suggestions.push({ description: t.description, amount: t.amount })
+    if (suggestions.length >= 5) break
+  }
+
+  return suggestions.sort((a, b) => b.amount - a.amount)
+}
+
+export async function importFromBuffer(
+  _buffer: ArrayBuffer,
+  transactions: Transaction[],
   userId: string,
   db: SupabaseClient<Database>,
-): Promise<{ monthsImported: string[] }> {
-  const buffer = await readFileAsArrayBuffer(file)
-  const transactions = parseExcelFile(buffer)
+): Promise<{ monthsImported: string[]; suggestions: ExclusionSuggestion[] }> {
   const rules = await fetchActiveRules(userId, db)
   const annotated = annotateTransactions(transactions, rules)
+  const suggestions = detectOutliers(annotated)
 
-  // Group by month
   const byMonth = new Map<string, AnnotatedTransaction[]>()
   for (const t of annotated) {
     const list = byMonth.get(t.month) ?? []
@@ -153,7 +183,17 @@ export async function importFile(
     monthsImported.push(month)
   }
 
-  return { monthsImported: monthsImported.sort() }
+  return { monthsImported: monthsImported.sort(), suggestions }
+}
+
+export async function importFile(
+  file: File,
+  userId: string,
+  db: SupabaseClient<Database>,
+): Promise<{ monthsImported: string[]; suggestions: ExclusionSuggestion[] }> {
+  const buffer = await readFileAsArrayBuffer(file)
+  const transactions = parseExcelFile(buffer)
+  return importFromBuffer(buffer, transactions, userId, db)
 }
 
 // Recalculates excluded flags for ALL of a user's transactions when rules change,
